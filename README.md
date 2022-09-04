@@ -1,7 +1,7 @@
 # HugeFiles
 
 [![License](http://img.shields.io/badge/License-Apache_2-red.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Continuous Integration](https://github.com/molsonkiko/JsonToolsNppPlugin/actions/workflows/CI_build.yml/badge.svg)](https://github.com/molsonkiko/JsonToolsNppPlugin/actions/workflows/CI_build.yml)
+[![Continuous Integration](https://github.com/molsonkiko/HugeFiles/actions/workflows/CI_build.yml/badge.svg)](https://github.com/molsonkiko/HugeFiles/actions/workflows/CI_build.yml)
 
 Easily view very large files, one chunk at a time.
 
@@ -16,13 +16,21 @@ Any issues, feel free to email me at mjolsonsfca@gmail.com.
 
 [Read the docs.](/docs/README.md)
 
-[View past changes.](/CHANGELOG.md)
+[View changes and desired features.](/CHANGELOG.md)
 
-![HugeFiles usage example](/docs/hugefiles%20demo%20screenshot.PNG)
+![HugeFiles usage example](/hugefiles%20demo%20screenshot.PNG)
 
 ## Downloads and Installation ##
 
-At present, you can't download this unless you have Visual Studio installed.
+Go to the [Releases page](https://github.com/molsonkiko/HugeFiles/releases) to see past releases.
+
+[Download latest 32-bit version](https://github.com/molsonkiko/HugeFiles/raw/main/Release_x86.zip)
+
+You can unzip the 32-bit download to `.\Program Files (x86)\Notepad++\plugins\HugeFiles\HugeFiles.dll`.
+
+[Download latest 64-bit version](https://github.com/molsonkiko/HugeFiles/raw/main/Release_x64.zip)
+
+You can unzip the 64-bit download to `C:\Program Files\Notepad++\plugins\HugeFiles\HugeFiles.dll`.
 
 ## Acknowledgments ##
 

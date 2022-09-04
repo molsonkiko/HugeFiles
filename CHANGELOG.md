@@ -22,12 +22,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### To Be Changed
 
+1. Make it so that changing only `previewLength` does not cause all the chunks to refresh, but only the form.
+
 ### To Be Fixed
 
-- Sometimes `ChunkForm.NextChunk` method causes Notepad++ to freeze (infinite loop, maybe?) and you have to quit.
-- Clicking on a node in the form to navigate to a different chunk works, except it doesn't properly update the image for the newly selected node. Instead it only updates the image for the previously selected node.
-- Changing the settings without reloading the file doesn't change the way the file is chunked. You have to reload the file first, even though it seems like you shouldn't.
-- Reloading the same filename that was previously selected doesn't do anything.
+- *Maybe fixed?* Sometimes `ChunkForm.NextChunk` method causes Notepad++ to freeze (infinite loop, maybe?) and you have to quit.
 
 ## [0.1.0] - 2022-09-03
 

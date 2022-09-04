@@ -64,8 +64,8 @@ namespace HugeFiles.HugeFiles
         /// </summary>
         public Chunker(string fname,
                        string delimiter = "\r\n",
-                       int minChunk = 150_000,
-                       int maxChunk = 250_000,
+                       int minChunk = 180_000,
+                       int maxChunk = 220_000,
                        int previewLength = 0)
         {
             if (!File.Exists(fname))
@@ -104,9 +104,7 @@ namespace HugeFiles.HugeFiles
         {
             if (finished)
                 return;
-            char cur_delim_char = delimiter[0];
             long flen = fhand.Length;
-            int position_in_delimiter = 0;
             long begin = position + minChunk;
             long end = position + maxChunk;
             long desired = (end + begin) / 2;
@@ -120,10 +118,19 @@ namespace HugeFiles.HugeFiles
                 long preview_end = position + previewLength > end ? end : position + previewLength;
                 fhand.Seek(position, SeekOrigin.Begin);
                 StringBuilder sb = new StringBuilder();
+                char c;
                 for (long ii = position; ii < preview_end; ii++)
-                    sb.Append((char)fhand.ReadByte());
+                {
+                    c = (char)fhand.ReadByte();
+                    switch (c)
+                    {
+                        case '\t': sb.Append("\\t"); break;
+                        case '\r': sb.Append("\\r"); break;
+                        case '\n': sb.Append("\\n"); break;
+                        default: sb.Append(c); break;
+                    }
+                }
                 chunk.preview = sb.ToString();
-                
             }
             if (desired >= flen)
             {
@@ -133,7 +140,18 @@ namespace HugeFiles.HugeFiles
                 finished = true;
                 return;
             }
+            // if no delimiter is specified or there's no wiggle room in chunk size,
+            // we don't need to bother looking for the closest delimiter to the desired
+            // length. We just always choose the desired length.
+            if (minChunk == maxChunk || delimiter.Length == 0)
+            {
+                chunk.end = desired;
+                position = desired;
+                return;
+            }
             fhand.Seek(begin, SeekOrigin.Begin);
+            char cur_delim_char = delimiter[0];
+            int position_in_delimiter = 0;
             while (fhand.Position < end)
             {
                 char c = (char)fhand.ReadByte();
@@ -205,13 +223,15 @@ namespace HugeFiles.HugeFiles
         /// <param name="maxChunk"></param>
         public void Reset(string delimiter, int minChunk, int maxChunk, int previewLength)
         {
-            this.delimiter = delimiter;
+            this.delimiter = delimiter
+                .Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
             this.minChunk = minChunk;
             this.maxChunk = maxChunk;
             this.previewLength = previewLength;
             chunks.Clear();
             position = 0;
             chunkSelected = -1;
+            finished = false;
         }
 
         /// <summary>
@@ -222,8 +242,14 @@ namespace HugeFiles.HugeFiles
             chunks.Clear();
             position = 0;
             chunkSelected = -1;
+            finished = false;
         }
 
+        /// <summary>
+        /// choose a new file and clear all chunks, but keep settings
+        /// </summary>
+        /// <param name="fname"></param>
+        /// <exception cref="FileNotFoundException"></exception>
         public void ChooseNewFile(string fname)
         {
             fhand.Dispose();
@@ -233,6 +259,10 @@ namespace HugeFiles.HugeFiles
             }
             this.fname = fname;
             fhand = new FileStream(fname, FileMode.Open, FileAccess.Read);
+            chunks.Clear();
+            position = 0;
+            chunkSelected = -1;
+            finished = false;
         }
     }
 }

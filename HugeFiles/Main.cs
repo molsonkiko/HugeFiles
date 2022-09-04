@@ -23,8 +23,8 @@ namespace Kbg.NppPluginNET
         internal const string PluginName = "HugeFiles";
         static string iniFilePath = null;
         static string delimiter = "\r\n";
-        static int minChunk = 150_000;
-        static int maxChunk = 250_000;
+        static int minChunk = 180_000;
+        static int maxChunk = 220_000;
         static int previewLength = 0;
         static Chunker chunker = null;
         static ChunkForm chunkForm = null;
@@ -74,7 +74,8 @@ namespace Kbg.NppPluginNET
             //            );
             PluginBase.SetCommand(0, "Choose file", ChooseFile,
                 new ShortcutKey(false, true, true, Keys.F));
-            PluginBase.SetCommand(1, "Settings", OpenSettings);
+            PluginBase.SetCommand(1, "Settings", OpenSettings,
+                new ShortcutKey(false, true, true, Keys.T));
             PluginBase.SetCommand(2, "---", null);
             PluginBase.SetCommand(3, "First chunk", FirstChunk, 
                 new ShortcutKey(false, true, false, Keys.Up));

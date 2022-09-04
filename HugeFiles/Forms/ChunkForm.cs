@@ -45,10 +45,17 @@ namespace HugeFiles.Forms
                 viewing unsaved
                 root icon
                 */
+                int img_idx;
                 if (ii == chunker.chunkSelected)
-                    node.ImageIndex = chunk.diffs.Count > 0 ? 3 : 2;
+                {
+                    img_idx = chunk.diffs.Count > 0 ? 3 : 2;
+                    node.ImageIndex = node.SelectedImageIndex = img_idx;
+                }
                 else
-                    node.ImageIndex = chunk.diffs.Count > 0 ? 1 : 0;
+                {
+                    img_idx = chunk.diffs.Count > 0 ? 1 : 0;
+                    node.ImageIndex = node.SelectedImageIndex = img_idx;
+                }
                 root.Nodes.Add(node);
             }
             ChunkTree.Nodes.Add(root);
@@ -68,8 +75,12 @@ namespace HugeFiles.Forms
             if (start == chunker.chunkSelected || start < 0 || start >= root.Nodes.Count)
                 return;
             // first two images are for non-viewed, last two are for viewed
-            root.Nodes[start].ImageIndex -= 2;
-            root.Nodes[chunker.chunkSelected].ImageIndex += 2;
+            TreeNode startnode = root.Nodes[start];
+            TreeNode endnode = root.Nodes[chunker.chunkSelected];
+            startnode.ImageIndex -= 2;
+            startnode.SelectedImageIndex -= 2;
+            endnode.ImageIndex += 2;
+            endnode.SelectedImageIndex += 2;
         }
 
         public static void OpenChunk(Chunker chunker, int chunkSelected)

@@ -25,11 +25,11 @@ namespace HugeFiles.Utils
 
         [Description("Minimum chunk size."),
             Category("Chunker")]
-        public int minChunk { get; set; } = 150_000;
+        public int minChunk { get; set; } = 180_000;
 
         [Description("Maximum chunk size."),
             Category("Chunker")]
-        public int maxChunk { get; set; } = 250_000;
+        public int maxChunk { get; set; } = 220_000;
 
         [Description("Number of characters in preview of each chunk."),
             Category("Chunker")]
@@ -122,8 +122,8 @@ namespace HugeFiles.Utils
                 // reset the settings to defaults
                 changed = true;
                 delimiter = "\\r\\n";
-                minChunk = 150_000;
-                maxChunk = 250_000;
+                minChunk = 180_000;
+                maxChunk = 220_000;
                 previewLength = 0;
                 dialog.Close();
             };
