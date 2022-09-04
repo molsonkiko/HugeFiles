@@ -70,7 +70,6 @@ namespace HugeFiles.Forms
             // first two images are for non-viewed, last two are for viewed
             root.Nodes[start].ImageIndex -= 2;
             root.Nodes[chunker.chunkSelected].ImageIndex += 2;
-            ChunkTree.Update();
         }
 
         public static void OpenChunk(Chunker chunker, int chunkSelected)

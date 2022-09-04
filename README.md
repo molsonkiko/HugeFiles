@@ -18,7 +18,7 @@ Any issues, feel free to email me at mjolsonsfca@gmail.com.
 
 [View past changes.](/CHANGELOG.md)
 
-![JSON file with syntax errors before and after use of JSON tools](/jsontools%20before%20after.PNG)
+![HugeFiles usage example](/docs/hugefiles%20demo%20screenshot.PNG)
 
 ## Downloads and Installation ##
 
