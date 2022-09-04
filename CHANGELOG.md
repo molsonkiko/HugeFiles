@@ -26,7 +26,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### To Be Fixed
 
-- *Maybe fixed?* Sometimes `ChunkForm.NextChunk` method causes Notepad++ to freeze (infinite loop, maybe?) and you have to quit.
+## [0.1.1] - 2022-09-03
+
+### Bugfixes
+
+Added logic to `Settings.cs` to ensure that minChunk is never greater than maxChunk, and also minChunk and maxChunk must be positive.
+
+If the user enters a minChunk greater than maxChunk in the settings, the minChunk will be set equal to maxChunk instead.
 
 ## [0.1.0] - 2022-09-03
 

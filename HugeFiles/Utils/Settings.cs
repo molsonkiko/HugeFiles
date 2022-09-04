@@ -111,8 +111,33 @@ namespace HugeFiles.Utils
                     return;
                 }
                 changed = true;
+                if (copy.minChunk <= 0)
+                {
+                    MessageBox.Show("minChunk and maxChunk must be positive numbers.",
+                                    "minChunk and maxChunk must be positive",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
+                    copy.minChunk = minChunk;
+                }
+                if (copy.maxChunk <= 0)
+                {
+                    MessageBox.Show("minChunk and maxChunk must be positive numbers.",
+                                    "minChunk and maxChunk must be positive",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
+                    copy.maxChunk = maxChunk;
+                }
                 delimiter = copy.delimiter;
-                minChunk = copy.minChunk;
+                if (copy.minChunk > copy.maxChunk)
+                {
+                    MessageBox.Show("minChunk cannot be greater than maxChunk! " +
+                                    "minChunk will instead be set equal to maxChunk.",
+                                    "minChunk cannot be greater than maxChunk",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
+                    minChunk = copy.maxChunk;
+                }
+                else minChunk = copy.minChunk;
                 maxChunk = copy.maxChunk;
                 previewLength = copy.previewLength;
                 dialog.Close();
