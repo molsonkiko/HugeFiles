@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Kbg.NppPluginNET.PluginInfrastructure;
 
@@ -56,6 +57,14 @@ namespace HugeFiles.Utils
             Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)msg, 0, path);
 
             return path.ToString();
+        }
+
+        public static string AssemblyVersionString()
+        {
+            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            while (version.EndsWith(".0"))
+                version = version.TrimEnd(new char[] { '.', '0' });
+            return version;
         }
 
         //public static DateTime LastSavedTime(string fname)

@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Kbg.NppPluginNET;
 
 namespace HugeFiles.HugeFiles
 {
@@ -42,7 +43,6 @@ namespace HugeFiles.HugeFiles
         public string delimiter;
         public int minChunk;
         public int maxChunk;
-        public int previewLength;
         public long position;
         public List<Chunk> chunks;
         public string fname;
@@ -65,8 +65,7 @@ namespace HugeFiles.HugeFiles
         public Chunker(string fname,
                        string delimiter = "\r\n",
                        int minChunk = 180_000,
-                       int maxChunk = 220_000,
-                       int previewLength = 0)
+                       int maxChunk = 220_000)
         {
             if (!File.Exists(fname))
             {
@@ -76,12 +75,11 @@ namespace HugeFiles.HugeFiles
             fhand = new FileStream(fname, FileMode.Open, FileAccess.Read);
             this.delimiter = delimiter
                 .Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
-                // the user needs an easy way to specify what kind of line feed (if any)
-                // they want to use as their delimiter, so they will input "\r" and the like
-                // in the Settings box. This undoes that hack.
+            // the user needs an easy way to specify what kind of line feed (if any)
+            // they want to use as their delimiter, so they will input "\r" and the like
+            // in the Settings box. This undoes that hack.
             this.minChunk = minChunk;
             this.maxChunk = maxChunk;
-            this.previewLength = previewLength;
             position = 0;
             chunks = new List<Chunk>();
             finished = false;
@@ -104,12 +102,22 @@ namespace HugeFiles.HugeFiles
         {
             if (finished)
                 return;
+            if (position == 0 &&
+                Main.settings.autoInferBestDelimiterAndTolerance
+                && !(delimiter.Length == 0 || maxChunk - minChunk == 0))
+            {
+                // try to find the best delimiter for this file
+                // but don't bother if the user has made it clear that they don't
+                // want to use a delimiter
+                InferDelimiterAndTolerance();
+            }
             long flen = fhand.Length;
             long begin = position + minChunk;
             long end = position + maxChunk;
             long desired = (end + begin) / 2;
             long closest_to_desired = end;
             long shortest_distance_to_desired = end - desired;
+            int previewLength = Main.settings.previewLength;
             Chunk chunk = new Chunk(position, end);
             chunks.Add(chunk);
             if (previewLength > 0)
@@ -210,7 +218,7 @@ namespace HugeFiles.HugeFiles
                 sb.Append((char)fhand.ReadByte());
             string unedited = sb.ToString();
             if (chunk.diffs.Count > 0)
-               return chunk.ApplyDiffs(unedited);
+                return chunk.ApplyDiffs(unedited);
             return unedited;
         }
 
@@ -221,13 +229,12 @@ namespace HugeFiles.HugeFiles
         /// <param name="delimiter"></param>
         /// <param name="minChunk"></param>
         /// <param name="maxChunk"></param>
-        public void Reset(string delimiter, int minChunk, int maxChunk, int previewLength)
+        public void Reset(string delimiter, int minChunk, int maxChunk)
         {
             this.delimiter = delimiter
                 .Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
             this.minChunk = minChunk;
             this.maxChunk = maxChunk;
-            this.previewLength = previewLength;
             chunks.Clear();
             position = 0;
             chunkSelected = -1;
@@ -263,6 +270,91 @@ namespace HugeFiles.HugeFiles
             position = 0;
             chunkSelected = -1;
             finished = false;
+        }
+
+        /// <summary>
+        /// reads the first 8 kb of a file, counting lengths of lines
+        /// and number of each line sep ('\r', '\n', or '\r\n').<br></br>
+        /// If at least three lines were found, sets the delimiter to
+        /// whichever one occurred the most times.<br></br>
+        /// Also sets the minChunk and maxChunk to avg(old minChunk, old maxChunk) -/+ 3*max(line length in preview),
+        /// unless minChunk and maxChunk were closer together than that.<br></br>
+        /// EXAMPLE:<br></br>
+        /// The first 16kb have a max line length of 800 characters,
+        /// and the line sep counts were {"\r": 15", "\r\n": 40}.<br></br>
+        /// "\r\n" occurred the most times, so it is the delimiter.<br></br>
+        /// minChunk and maxChunk were previously 199000 and 201000.<br></br>
+        /// Since 3 * 800 = 2400 and this is greater than 1/2 the separation between minChunk and maxChunk,
+        /// minChunk and maxChunk are not changed.
+        /// </summary>
+        public void InferDelimiterAndTolerance()
+        {
+            fhand.Seek(0, SeekOrigin.Begin);
+            int maxLineLength = 0;
+            Dictionary<string, int> delimCount = new Dictionary<string, int>
+            {
+                { "\r\n", 0},
+                { "\r", 0 },
+                { "\n", 0 }
+            };
+            int lineLength = 0;
+            int lineCount = 0;
+            while (fhand.Position < 8192)
+            {
+                char c = (char)fhand.ReadByte();
+                if (c < 0)
+                    break;
+                if (c == '\r')
+                {
+                    c = (char)fhand.ReadByte();
+                    if (c == '\n')
+                    {
+                        delimCount["\r\n"]++;
+                    }
+                    else
+                    {
+                        delimCount["\r"]++;
+                    }
+                    if (lineLength > maxLineLength)
+                    {
+                        maxLineLength = lineLength;
+                    }
+                    lineLength = -1;
+                    lineCount++;
+                }
+                else if (c == '\n')
+                {
+                    delimCount["\n"]++;
+                    if (lineLength > maxLineLength)
+                    {
+                        maxLineLength = lineLength;
+                    }
+                    lineLength = -1;
+                    lineCount++;
+                }
+                lineLength++;
+            } 
+            if (lineCount >= 3)
+            {
+                int avgChunk = (minChunk + maxChunk) / 2;
+                if (16 * maxLineLength < maxChunk - minChunk)
+                {
+                    minChunk = avgChunk - 8 * maxLineLength;
+                    maxChunk = avgChunk + 8 * maxLineLength;
+                }
+                int mostPopularDelimCount = 0;
+                string mostPopularDelim = "";
+                foreach (string delim in delimCount.Keys)
+                {
+                    int ct = delimCount[delim];
+                    if (ct > mostPopularDelimCount)
+                    {
+                        mostPopularDelimCount = ct;
+                        mostPopularDelim = delim;
+                    }
+                }
+                delimiter = mostPopularDelim;
+            }
         }
     }
 }

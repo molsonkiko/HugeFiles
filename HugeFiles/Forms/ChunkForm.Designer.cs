@@ -41,6 +41,9 @@
             // 
             // ChunkTree
             // 
+            this.ChunkTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.ChunkTree.Location = new System.Drawing.Point(3, 36);
             this.ChunkTree.Name = "ChunkTree";
             this.ChunkTree.Size = new System.Drawing.Size(337, 575);
@@ -79,6 +82,7 @@
             // 
             // NextButton
             // 
+            this.NextButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.NextButton.Location = new System.Drawing.Point(244, 1);
             this.NextButton.Name = "NextButton";
             this.NextButton.Size = new System.Drawing.Size(46, 29);
@@ -89,6 +93,7 @@
             // 
             // LastButton
             // 
+            this.LastButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LastButton.Location = new System.Drawing.Point(296, 1);
             this.LastButton.Name = "LastButton";
             this.LastButton.Size = new System.Drawing.Size(44, 29);

@@ -24,16 +24,22 @@ The form (which you can open with `Alt+Shift+H` or the drop-down menu) lets you 
 ## Changing the settings ##
 
 There are four settings you can change:
-1. The delimiter
+1. autoInferBestDelimiterAndTolerance __(new in 0.2.0)__
+    - Default: `true`
+    - If this is set to true, and the user does not manually set delimiter to empty or minChunk = maxChunk, the plugin will automatically do the following:
+    - Determine what line separator the file is using, and automatically use that separator without changing the main settings.
+    - Determine the length of the longest line in the first 8kb of the file, and set maxChunk - minChunk to be 16 * that max length. 
+    - Sometimes you may find that setting this to `true` results in improperly cutting off long lines later in the file. If so, you should turn this setting off.
+2. The delimiter
     - Default: `\r\n`, the carriage return-linefeed that indicates a newline on Windows.
     - You can click on the `paragraph` symbol on the top menu bar in Notepad++.
     - If `\r\n` doesn't work for splitting lines, `\r` or `\n` might work.
     - If the delimiter is left blank, all the chunks will have size (minChunk + maxChunk) / 2. This will improve performance.
-2. minChunk and maxChunk
+3. minChunk and maxChunk
     - Default: 180,000 and 220,000 characters, respectively.
     - These are the minimum and maximum lengths that a chunk can be.
     - If minChunk equals maxChunk, the delimiter doesn't matter and all the chunks will have size (minChunk + maxChunk) / 2. This can also improve performance.
-3. previewLength
+4. previewLength
     - Default: 0 characters.
     - This is the size of the preview you get of each chunk.
     - If previewLength is 0, each chunk is labeled with the position in the document.
@@ -59,3 +65,13 @@ Now when we try paging through the file, we see that the chunks are split on lin
 Let's look at the file one last time, this time with previews.
 
 ![CSV file with CR delimiter and 30-character preview](/docs/csv%20file%20CR%20delim%2030%20preview%20settings.PNG)
+
+## Text search form ##
+
+You can use a form to search for text in the huge file that you've chosen. This form will find matches for simple text or a regular expression.
+
+The search form caps out at 100 search results per chunk. This is in place to avoid excessive memory consumption when searching very large files.
+
+![Example usage of search form](/docs/search%20form%20example.PNG)
+
+Clicking on a top-level node in the treeview (looks like `200053: 60 results`) causes Notepad++ to open up that chunk in a buffer.

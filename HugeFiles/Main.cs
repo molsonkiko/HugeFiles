@@ -14,23 +14,22 @@ using static Kbg.NppPluginNET.PluginInfrastructure.Win32;
 using HugeFiles.Forms;
 using HugeFiles.HugeFiles;
 using HugeFiles.Utils;
+using NppPluginNET.Forms;
 
 namespace Kbg.NppPluginNET
 {
     class Main
     {
         #region " Fields "
-        internal const string PluginName = "HugeFiles";
+        internal const string PluginName = "H&ugeFiles";
         static string iniFilePath = null;
-        static string delimiter = "\r\n";
-        static int minChunk = 180_000;
-        static int maxChunk = 220_000;
-        static int previewLength = 0;
         static Chunker chunker = null;
-        static ChunkForm chunkForm = null;
+        static FindReplaceForm findReplaceForm = null;
+        internal static ChunkForm chunkForm = null;
 
         public static Settings settings = new Settings();
         static internal int idChunkForm = -1;
+        static internal int idFindReplaceForm = -1;
 
         // toolbar icons
         //static Bitmap tbBmp = Resources.star;
@@ -72,23 +71,26 @@ namespace Kbg.NppPluginNET
             //            ShortcutKey *shortcut,                // optional. Define a shortcut to trigger this command
             //            bool check0nInit                      // optional. Make this menu item be checked visually
             //            );
-            PluginBase.SetCommand(0, "Choose file", ChooseFile,
+            PluginBase.SetCommand(0, "&Choose file", ChooseFile,
                 new ShortcutKey(false, true, true, Keys.F));
-            PluginBase.SetCommand(1, "Settings", OpenSettings,
+            PluginBase.SetCommand(1, "&Settings", OpenSettings,
                 new ShortcutKey(false, true, true, Keys.T));
             PluginBase.SetCommand(2, "---", null);
-            PluginBase.SetCommand(3, "First chunk", FirstChunk, 
+            PluginBase.SetCommand(3, "&First chunk", FirstChunk, 
                 new ShortcutKey(false, true, false, Keys.Up));
-            PluginBase.SetCommand(4, "Previous chunk", PreviousChunk,
+            PluginBase.SetCommand(4, "&Previous chunk", PreviousChunk,
                 new ShortcutKey(false, true, false, Keys.Left));
-            PluginBase.SetCommand(5, "Next chunk", NextChunk,
+            PluginBase.SetCommand(5, "&Next chunk", NextChunk,
                 new ShortcutKey(false, true, false, Keys.Right));
-            PluginBase.SetCommand(6, "Last chunk", LastChunk,
+            PluginBase.SetCommand(6, "&Last chunk", LastChunk,
                 new ShortcutKey(false, true, false, Keys.Down));
             PluginBase.SetCommand(7, "---", null);
-            PluginBase.SetCommand(8, "Open chunk form", OpenChunkForm,
-                new ShortcutKey(false, true, true, Keys.H)); 
+            PluginBase.SetCommand(8, "&Open chunk form", OpenChunkForm,
+                new ShortcutKey(false, true, true, Keys.H));
             idChunkForm = 8;
+            PluginBase.SetCommand(9, "Searc&h for text in file", OpenFindReplaceForm);
+            idFindReplaceForm = 9;
+            PluginBase.SetCommand(10, "A&bout", OpenAboutForm);
         }
 
         static internal void SetToolBarIcon()
@@ -119,6 +121,8 @@ namespace Kbg.NppPluginNET
                 chunker.Dispose();
             if (chunkForm != null)
                 chunkForm.Dispose();
+            if (findReplaceForm != null)
+                findReplaceForm.Dispose();
         }
 
         public static void OnNotification(ScNotification notification)
@@ -153,13 +157,9 @@ namespace Kbg.NppPluginNET
             settings.ShowDialog();
             if (!settings.changed)
                 return;
-            delimiter = settings.delimiter;
-            minChunk = settings.minChunk;
-            maxChunk = settings.maxChunk;
-            previewLength = settings.previewLength;
             if (chunker != null)
             {
-                chunker.Reset(delimiter, minChunk, maxChunk, previewLength);
+                chunker.Reset(Main.settings.delimiter, Main.settings.minChunk, Main.settings.maxChunk);
                 chunker.buffName = "";
                 if (chunkForm != null)
                     chunkForm.ChunkTreePopulate();
@@ -182,12 +182,19 @@ namespace Kbg.NppPluginNET
                     return;
                 }
                 if (chunker == null)
-                    chunker = new Chunker(fname, delimiter, minChunk, maxChunk, previewLength);
+                    chunker = new Chunker(fname, Main.settings.delimiter, Main.settings.minChunk, Main.settings.maxChunk);
                 else
                     chunker.ChooseNewFile(fname);
                 if (chunkForm != null)
                 {
                     chunkForm.ChunkTreePopulate();
+                }
+                if (findReplaceForm != null)
+                {
+                    findReplaceForm.Hide();
+                    findReplaceForm.Dispose();
+                    findReplaceForm = new FindReplaceForm(chunker);
+                    findReplaceForm.Show();
                 }
             }
         }
@@ -229,6 +236,24 @@ namespace Kbg.NppPluginNET
                 return true;
             }
             return false;
+        }
+
+        static void OpenFindReplaceForm()
+        {
+            if (WhineIfChunkerNull()) return;
+            if (findReplaceForm != null)
+            {
+                findReplaceForm.Hide();
+                findReplaceForm.Dispose();
+            }
+            findReplaceForm = new FindReplaceForm(chunker);
+            findReplaceForm.Show();
+            findReplaceForm.PatternBox.Focus();
+        }
+
+        static void OpenAboutForm()
+        {
+            new AboutForm().ShowDialog();
         }
 
         static void OpenChunkForm()

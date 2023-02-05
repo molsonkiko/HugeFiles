@@ -19,12 +19,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         3. Delete the original file.
         4. Rename the new file to have the same name as the old one.
 2. Add the ability to use other kinds of delimiters, like maybe somehow chunk big JSON documents so that each chunk is also valid JSON.
+    * this will not be done in HugeFiles, but I plan to implement it for JSON in [JsonTools](https://github.com/molsonkiko/JsonToolsNppPlugin).
 
 ### To Be Changed
 
 1. Make it so that changing only `previewLength` does not cause all the chunks to refresh, but only the form.
 
 ### To Be Fixed
+
+1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
+
+## [0.2.0] - 2023-02-04
+
+### Added
+
+1. [Form](/docs/README.md#text-search-form) for searching for text in chunked file. Can navigate to chunks where search results were found.
+2. Automatic inference of line terminator. Can be turned off in plugin settings.
 
 ## [0.1.1] - 2022-09-03
 

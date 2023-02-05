@@ -5,14 +5,16 @@
 
 Easily view very large files, one chunk at a time.
 
-You can choose.
+You can choose the size of chunks to view.
 
 Any issues, feel free to email me at mjolsonsfca@gmail.com.
 
 ## Features ##
 1. You can choose to break the chunk up by delimiters ("\r\n" by default, but you can choose any delimiter)
   or just have every chunk be the same size.
+  - By default, the plugin will infer the line terminator of a file, so you don't need to do anything.
 2. A nice form for moving between chunks.
+3. A [form for searching for text](/docs/README.md#text-search-form) in the file.
 
 [Read the docs.](/docs/README.md)
 
@@ -31,6 +33,12 @@ You can unzip the 32-bit download to `.\Program Files (x86)\Notepad++\plugins\Hu
 [Download latest 64-bit version](https://github.com/molsonkiko/HugeFiles/raw/main/Release_x64.zip)
 
 You can unzip the 64-bit download to `C:\Program Files\Notepad++\plugins\HugeFiles\HugeFiles.dll`.
+
+## System Requirements ##
+
+Every version of the plugin works for very old versions of Notepad++ (as far back as Notepad++ 7.3.3).
+
+Every version up to and including [0.1.1](https://github.com/molsonkiko/JsonToolsNppPlugin/blob/main/CHANGELOG.md#3721---2022-10-20) should work natively on Windows 8 or later (note: this is untested), or you must install [.NET Framework 4.0](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net40). Every version beginning with [0.2.0](https://github.com/molsonkiko/JsonToolsNppPlugin/blob/main/CHANGELOG.md#400---2022-10-24) works on [Windows 10 May 2019 update](https://blogs.windows.com/windowsexperience/2019/05/21/how-to-get-the-windows-10-may-2019-update/) or later, or you must install [.NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48).
 
 ## Acknowledgments ##
 

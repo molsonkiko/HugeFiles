@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NppPluginNET</RootNamespace>
     <AssemblyName>HugeFiles</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <OldToolsVersion>3.5</OldToolsVersion>
     <ProjectGuid>{EB8FC3A3-93E8-457B-B281-FAFA5119611A}</ProjectGuid>
   </PropertyGroup>
@@ -66,11 +66,23 @@
     <StartProgram Condition="'$(Platform)'=='x86'">$(MSBuildProgramFiles32)\Notepad++\notepad++.exe</StartProgram>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Forms\AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ChunkForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\ChunkForm.Designer.cs">
       <DependentUpon>ChunkForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FindReplaceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FindReplaceForm.Designer.cs">
+      <DependentUpon>FindReplaceForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PluginInfrastructure\DllExport\DllExportAttribute.cs">
       <Link>PluginInfrastructure\DllExport\DllExportAttribute.cs</Link>
@@ -146,8 +158,14 @@
     <Folder Include="PluginInfrastructure\DllExport\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ChunkForm.resx">
       <DependentUpon>ChunkForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FindReplaceForm.resx">
+      <DependentUpon>FindReplaceForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

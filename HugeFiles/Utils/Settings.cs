@@ -17,7 +17,7 @@ namespace HugeFiles.Utils
 
         // private static readonly string IniFilePath;
 
-        [Description("Delimiter for chunks."),
+        [Description("Delimiter for chunks. Leave blank to make all chunks the same length."),
             Category("Chunker")]
         public string delimiter { get; set; } = "\\r\\n";
         // \r, \n, and \t are invisible by default, so this is a hack to let the user see them
@@ -33,7 +33,11 @@ namespace HugeFiles.Utils
 
         [Description("Number of characters in preview of each chunk."),
             Category("Chunker")]
-        public int previewLength { get; set; } = 0;
+        public int previewLength { get; set; } = 20;
+
+        [Description("Whether to automatically set minChunk, maxChunk and delimiter to inferred best settings for the file"),
+            Category("Chunker")]
+        public bool autoInferBestDelimiterAndTolerance { get; set; } = true;
 
         public bool changed = false;
 
@@ -140,6 +144,7 @@ namespace HugeFiles.Utils
                 else minChunk = copy.minChunk;
                 maxChunk = copy.maxChunk;
                 previewLength = copy.previewLength;
+                autoInferBestDelimiterAndTolerance = copy.autoInferBestDelimiterAndTolerance;
                 dialog.Close();
             };
             dialog.Controls["Reset"].Click += (a, b) =>
@@ -149,7 +154,8 @@ namespace HugeFiles.Utils
                 delimiter = "\\r\\n";
                 minChunk = 180_000;
                 maxChunk = 220_000;
-                previewLength = 0;
+                previewLength = 20;
+                autoInferBestDelimiterAndTolerance = true;
                 dialog.Close();
             };
             dialog.ShowDialog();

@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using HugeFiles.HugeFiles;
 using HugeFiles.Utils;
+using Kbg.NppPluginNET;
 
 namespace HugeFiles.Forms
 {
@@ -34,10 +35,10 @@ namespace HugeFiles.Forms
             {
                 Chunk chunk = chunker.chunks[ii];
                 TreeNode node = new TreeNode();
-                if (chunker.previewLength > 0)
-                    node.Text = $"{ii}: {chunk.preview}...";
+                if (Main.settings.previewLength > 0)
+                    node.Text = $"{chunk.start}: {chunk.preview}...";
                 else
-                    node.Text = $"{ii}: {chunk.start}";
+                    node.Text = $"{chunk.start}";
                 /* images are as follows:
                 saved
                 unsaved
