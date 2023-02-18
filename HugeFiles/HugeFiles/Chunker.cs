@@ -35,29 +35,16 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Kbg.NppPluginNET;
+using System.Windows.Forms;
 
 namespace HugeFiles.HugeFiles
 {
-    public class Chunker : IDisposable
+    public class Chunker : BaseChunker
     {
         public string delimiter;
         public int minChunk;
         public int maxChunk;
         public long position;
-        public List<Chunk> chunks;
-        public string fname;
-        public FileStream fhand;
-        /// <summary>
-        /// indicates if the chunker has read every chunk in the file
-        /// </summary>
-        public bool finished;
-        public int chunkSelected;
-        /// <summary>
-        /// the name of the buffer that chunks are viewed in.<br></br>
-        /// This avoids the annoyance of opening up a new buffer
-        /// every time the user wants to change to a different chunk.
-        /// </summary>
-        public string buffName;
 
         /// <summary>
         /// breaks a file into chunks
@@ -65,14 +52,8 @@ namespace HugeFiles.HugeFiles
         public Chunker(string fname,
                        string delimiter = "\r\n",
                        int minChunk = 180_000,
-                       int maxChunk = 220_000)
+                       int maxChunk = 220_000) : base(fname)
         {
-            if (!File.Exists(fname))
-            {
-                throw new FileNotFoundException(fname);
-            }
-            this.fname = fname;
-            fhand = new FileStream(fname, FileMode.Open, FileAccess.Read);
             this.delimiter = delimiter
                 .Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
             // the user needs an easy way to specify what kind of line feed (if any)
@@ -81,16 +62,6 @@ namespace HugeFiles.HugeFiles
             this.minChunk = minChunk;
             this.maxChunk = maxChunk;
             position = 0;
-            chunks = new List<Chunk>();
-            finished = false;
-            chunkSelected = -1;
-            buffName = "";
-        }
-
-        public void Dispose()
-        {
-            // make sure to close the file when you're done chunking it
-            fhand.Dispose();
         }
 
         /// <summary>
@@ -122,23 +93,9 @@ namespace HugeFiles.HugeFiles
             chunks.Add(chunk);
             if (previewLength > 0)
             {
-                // make a short preview of the current chunk
-                long preview_end = position + previewLength > end ? end : position + previewLength;
-                fhand.Seek(position, SeekOrigin.Begin);
-                StringBuilder sb = new StringBuilder();
-                char c;
-                for (long ii = position; ii < preview_end; ii++)
-                {
-                    c = (char)fhand.ReadByte();
-                    switch (c)
-                    {
-                        case '\t': sb.Append("\\t"); break;
-                        case '\r': sb.Append("\\r"); break;
-                        case '\n': sb.Append("\\n"); break;
-                        default: sb.Append(c); break;
-                    }
-                }
-                chunk.preview = sb.ToString();
+                if (position + previewLength > flen)
+                    previewLength = (int)(flen - position);
+                AddPreview(chunk, previewLength);
             }
             if (desired >= flen)
             {
@@ -160,6 +117,11 @@ namespace HugeFiles.HugeFiles
             fhand.Seek(begin, SeekOrigin.Begin);
             char cur_delim_char = delimiter[0];
             int position_in_delimiter = 0;
+            if (end > flen)
+            {
+                end = flen;
+                closest_to_desired = flen;
+            }
             while (fhand.Position < end)
             {
                 char c = (char)fhand.ReadByte();
@@ -177,11 +139,11 @@ namespace HugeFiles.HugeFiles
                         }
                         else if (fhand.Position > desired)
                         {
-                            // if we've passed the desired chunk size and we're further away than
-                            // the closest-to-desired delimiter found, return the closest position
-                            chunk.end = closest_to_desired;
-                            position = closest_to_desired;
-                            return;
+                            // if we've passed the desired chunk size
+                            // and we're further away than
+                            // the closest-to-desired delimiter found,
+                            // stop looking
+                            break;
                         }
                         continue;
                     }
@@ -189,12 +151,14 @@ namespace HugeFiles.HugeFiles
                     cur_delim_char = delimiter[position_in_delimiter];
                 }
             }
-            // no delimiters found between minChunk and maxChunk, so this chunk will be big
-            position = end;
+            position = closest_to_desired;
+            chunk.end = closest_to_desired;
+            if (position >= flen) finished = true;
         }
 
-        public void AddAllChunks()
+        public override void AddAllChunks()
         {
+            if (WarnTooManyChunks(maxChunk)) return;
             while (!finished) AddChunk();
         }
 
@@ -203,7 +167,7 @@ namespace HugeFiles.HugeFiles
         /// </summary>
         /// <param name="chunkNum"></param>
         /// <returns></returns>
-        public string ReadChunk(int chunkNum)
+        public override string ReadChunk(int chunkNum)
         {
             chunkSelected = chunkNum;
             if (chunkNum > chunks.Count - 1)
@@ -212,14 +176,15 @@ namespace HugeFiles.HugeFiles
                     AddChunk();
             }
             Chunk chunk = chunks[chunkNum];
-            fhand.Seek(chunk.start, SeekOrigin.Begin);
-            StringBuilder sb = new StringBuilder();
-            while (fhand.Position < chunk.end)
-                sb.Append((char)fhand.ReadByte());
-            string unedited = sb.ToString();
-            if (chunk.diffs.Count > 0)
-                return chunk.ApplyDiffs(unedited);
-            return unedited;
+            return chunk.Read(fhand);
+        }
+
+        public override void Reset()
+        {
+            chunks.Clear();
+            chunkSelected = -1;
+            finished = false;
+            position = 0;
         }
 
         /// <summary>
@@ -229,47 +194,13 @@ namespace HugeFiles.HugeFiles
         /// <param name="delimiter"></param>
         /// <param name="minChunk"></param>
         /// <param name="maxChunk"></param>
-        public void Reset(string delimiter, int minChunk, int maxChunk)
+        public override void Reset(string delimiter, int minChunk, int maxChunk)
         {
             this.delimiter = delimiter
                 .Replace("\\t", "\t").Replace("\\r", "\r").Replace("\\n", "\n");
             this.minChunk = minChunk;
             this.maxChunk = maxChunk;
-            chunks.Clear();
-            position = 0;
-            chunkSelected = -1;
-            finished = false;
-        }
-
-        /// <summary>
-        /// clear all chunks and set position to 0, but change nothing else
-        /// </summary>
-        public void Reset()
-        {
-            chunks.Clear();
-            position = 0;
-            chunkSelected = -1;
-            finished = false;
-        }
-
-        /// <summary>
-        /// choose a new file and clear all chunks, but keep settings
-        /// </summary>
-        /// <param name="fname"></param>
-        /// <exception cref="FileNotFoundException"></exception>
-        public void ChooseNewFile(string fname)
-        {
-            fhand.Dispose();
-            if (!File.Exists(fname))
-            {
-                throw new FileNotFoundException(fname);
-            }
-            this.fname = fname;
-            fhand = new FileStream(fname, FileMode.Open, FileAccess.Read);
-            chunks.Clear();
-            position = 0;
-            chunkSelected = -1;
-            finished = false;
+            Reset();
         }
 
         /// <summary>
@@ -277,14 +208,14 @@ namespace HugeFiles.HugeFiles
         /// and number of each line sep ('\r', '\n', or '\r\n').<br></br>
         /// If at least three lines were found, sets the delimiter to
         /// whichever one occurred the most times.<br></br>
-        /// Also sets the minChunk and maxChunk to avg(old minChunk, old maxChunk) -/+ 3*max(line length in preview),
+        /// Also sets the minChunk and maxChunk to avg(old minChunk, old maxChunk) -/+ 16*max(line length in preview),
         /// unless minChunk and maxChunk were closer together than that.<br></br>
         /// EXAMPLE:<br></br>
-        /// The first 16kb have a max line length of 800 characters,
+        /// The first 8kb have a max line length of 400 characters,
         /// and the line sep counts were {"\r": 15", "\r\n": 40}.<br></br>
         /// "\r\n" occurred the most times, so it is the delimiter.<br></br>
         /// minChunk and maxChunk were previously 199000 and 201000.<br></br>
-        /// Since 3 * 800 = 2400 and this is greater than 1/2 the separation between minChunk and maxChunk,
+        /// Since 16 * 400 = 6400 and this is greater than 1/2 the separation between minChunk and maxChunk,
         /// minChunk and maxChunk are not changed.
         /// </summary>
         public void InferDelimiterAndTolerance()
@@ -299,7 +230,8 @@ namespace HugeFiles.HugeFiles
             };
             int lineLength = 0;
             int lineCount = 0;
-            while (fhand.Position < 8192)
+            long checkTo = fhand.Length < 8192 ? fhand.Length : 8192;
+            while (fhand.Position < checkTo)
             {
                 char c = (char)fhand.ReadByte();
                 if (c < 0)
@@ -333,14 +265,14 @@ namespace HugeFiles.HugeFiles
                     lineCount++;
                 }
                 lineLength++;
-            } 
+            }
             if (lineCount >= 3)
             {
                 int avgChunk = (minChunk + maxChunk) / 2;
-                if (16 * maxLineLength < maxChunk - minChunk)
+                if (32 * maxLineLength < maxChunk - minChunk)
                 {
-                    minChunk = avgChunk - 8 * maxLineLength;
-                    maxChunk = avgChunk + 8 * maxLineLength;
+                    minChunk = avgChunk - 16 * maxLineLength;
+                    maxChunk = avgChunk + 16 * maxLineLength;
                 }
                 int mostPopularDelimCount = 0;
                 string mostPopularDelim = "";

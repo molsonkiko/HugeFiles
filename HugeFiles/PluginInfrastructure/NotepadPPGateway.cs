@@ -19,6 +19,7 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
 		unsafe string GetFilePath(int bufferId);
 		void SetCurrentLanguage(LangType language);
 		bool OpenFile(string path);
+		string GetConfigDirectory();
 	}
 
 	/// <summary>
@@ -119,7 +120,18 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
 		{
 			Win32.SendMessage(PluginBase.nppData._nppHandle, (uint) NppMsg.NPPM_SETCURRENTLANGTYPE, Unused, (int) language);
 		}
-	}
+
+        /// <summary>
+        /// Figure out default N++ config file path<br></br>
+        /// Path is usually -> .\Users\<username>\AppData\Roaming\Notepad++\plugins\config\
+        /// </summary>
+        public string GetConfigDirectory()
+        {
+            var sbIniFilePath = new StringBuilder(Win32.MAX_PATH);
+            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
+            return sbIniFilePath.ToString();
+        }
+    }
 
 	/// <summary>
 	/// This class holds helpers for sending messages defined in the Resource_h.cs file. It is at the moment

@@ -18,8 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
             2. Otherwise, apply the diffs, then append the edited chunk to the file.
         3. Delete the original file.
         4. Rename the new file to have the same name as the old one.
-2. Add the ability to use other kinds of delimiters, like maybe somehow chunk big JSON documents so that each chunk is also valid JSON.
-    * this will not be done in HugeFiles, but I plan to implement it for JSON in [JsonTools](https://github.com/molsonkiko/JsonToolsNppPlugin).
+2. Make the search form into a find/replace form.
+3. Add a tool for creating a new directory and writing each chunk to a separate file.
+4. Chunk big XML documents so that each chunk is also valid XML.
 
 ### To Be Changed
 
@@ -28,6 +29,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### To Be Fixed
 
 1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
+
+## [0.3.0] - 2023-02-18
+
+### Added
+
+1. [Chunking of JSON files](/docs/README.md#chunking-json-files) that ensures that every chunk is syntactically valid JSON (although you may need to delete a stray char at the beginning of a chunk sometimes).
+2. Test suite and performance benchmarking.
+3. Settings persist between sessions.
+
+### Fixed
+
+1. Miscellaneous bugs with default text chunker.
 
 ## [0.2.0] - 2023-02-04
 

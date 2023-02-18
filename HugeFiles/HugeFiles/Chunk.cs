@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -41,6 +43,18 @@ namespace HugeFiles.HugeFiles
                 inp = sb.ToString();
             }
             return inp;
+        }
+
+        public string Read(FileStream fhand)
+        {
+            int bytelen = (int)(end - start);
+            byte[] bytes = new byte[bytelen];
+            fhand.Seek(start, SeekOrigin.Begin);
+            fhand.Read(bytes, 0, bytelen);
+            string unedited = Encoding.UTF8.GetString(bytes);
+            if (diffs.Count > 0)
+                return ApplyDiffs(unedited);
+            return unedited;
         }
     }
 }

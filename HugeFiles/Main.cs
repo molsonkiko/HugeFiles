@@ -15,6 +15,7 @@ using HugeFiles.Forms;
 using HugeFiles.HugeFiles;
 using HugeFiles.Utils;
 using NppPluginNET.Forms;
+using HugeFiles.Tests;
 
 namespace Kbg.NppPluginNET
 {
@@ -23,7 +24,7 @@ namespace Kbg.NppPluginNET
         #region " Fields "
         internal const string PluginName = "H&ugeFiles";
         static string iniFilePath = null;
-        static Chunker chunker = null;
+        public static BaseChunker chunker = null;
         static FindReplaceForm findReplaceForm = null;
         internal static ChunkForm chunkForm = null;
 
@@ -90,7 +91,15 @@ namespace Kbg.NppPluginNET
             idChunkForm = 8;
             PluginBase.SetCommand(9, "Searc&h for text in file", OpenFindReplaceForm);
             idFindReplaceForm = 9;
-            PluginBase.SetCommand(10, "A&bout", OpenAboutForm);
+            PluginBase.SetCommand(10, "---", null);
+            PluginBase.SetCommand(11, "A&bout", OpenAboutForm);
+            PluginBase.SetCommand(12, "Run &tests", TestRunner.RunAll);
+
+            // fix most common validation problem with settings
+            if (settings.minChunk > settings.maxChunk)
+            {
+                settings.minChunk = settings.maxChunk;
+            }
         }
 
         static internal void SetToolBarIcon()
@@ -157,19 +166,35 @@ namespace Kbg.NppPluginNET
             settings.ShowDialog();
             if (!settings.changed)
                 return;
+            if (settings.minChunk > settings.maxChunk)
+            {
+                MessageBox.Show("minChunk can't be greater than maxChunk. Setting minChunk equal to maxChunk.",
+                    "Settings validation error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                settings.minChunk = settings.maxChunk;
+            }
             if (chunker != null)
             {
-                chunker.Reset(Main.settings.delimiter, Main.settings.minChunk, Main.settings.maxChunk);
-                chunker.buffName = "";
+                if (chunker is JsonChunker oldChunker)
+                {
+                    // json chunkers don't handle resetting well for some reason
+                    string fname = oldChunker.fname;
+                    oldChunker.Dispose();
+                    chunker = new JsonChunker(fname, settings.minChunk, settings.maxChunk);
+                }
+                else
+                {
+                    chunker.Reset(settings.delimiter, settings.minChunk, settings.maxChunk);
+                    chunker.buffName = "";
+                }
                 if (chunkForm != null)
                     chunkForm.ChunkTreePopulate();
             }
         }
 
-        static void ChooseFile()
+        public static void ChooseFile()
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "All files|*.*|Text files|*.txt";
+            ofd.Filter = "All files|*.*|Text files|*.txt|CSV files|*.csv|JSON files|*.json";
             ofd.InitialDirectory = @"C:\";
             ofd.Title = "Open file for chunking with HugeFiles";
             ofd.CheckFileExists = true;
@@ -177,12 +202,22 @@ namespace Kbg.NppPluginNET
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 fname = ofd.FileName;
+                bool isJson = (settings.parseJsonAsJson && fname.EndsWith(".json"))
+                    || settings.parseNonJsonAsJson;
                 if (!File.Exists(fname))
                 {
                     return;
                 }
-                if (chunker == null)
-                    chunker = new Chunker(fname, Main.settings.delimiter, Main.settings.minChunk, Main.settings.maxChunk);
+                if (chunker == null
+                    || (chunker is JsonChunker && !isJson)
+                    || (chunker is Chunker && isJson))
+                {
+                    if (chunker != null)
+                        chunker.Dispose();
+                    if (isJson)
+                        chunker = new JsonChunker(fname, settings.minChunk, settings.maxChunk);
+                    else chunker = new Chunker(fname, settings.delimiter, settings.minChunk, settings.maxChunk);
+                }
                 else
                     chunker.ChooseNewFile(fname);
                 if (chunkForm != null)
@@ -193,7 +228,7 @@ namespace Kbg.NppPluginNET
                 {
                     findReplaceForm.Hide();
                     findReplaceForm.Dispose();
-                    findReplaceForm = new FindReplaceForm(chunker);
+                    findReplaceForm = new FindReplaceForm();
                     findReplaceForm.Show();
                 }
             }
@@ -246,7 +281,7 @@ namespace Kbg.NppPluginNET
                 findReplaceForm.Hide();
                 findReplaceForm.Dispose();
             }
-            findReplaceForm = new FindReplaceForm(chunker);
+            findReplaceForm = new FindReplaceForm();
             findReplaceForm.Show();
             findReplaceForm.PatternBox.Focus();
         }
@@ -266,7 +301,7 @@ namespace Kbg.NppPluginNET
             
             if (chunkForm == null)
             {
-                chunkForm = new ChunkForm(chunker);
+                chunkForm = new ChunkForm();
 
                 using (Bitmap newBmp = new Bitmap(16, 16))
                 {

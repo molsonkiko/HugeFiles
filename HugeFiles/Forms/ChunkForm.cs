@@ -15,18 +15,16 @@ namespace HugeFiles.Forms
 {
     public partial class ChunkForm : Form
     {
-        public Chunker chunker;
-
-        public ChunkForm(Chunker chunker)
+        public ChunkForm()
         {
             InitializeComponent();
-            this.chunker = chunker;
         }
 
         public void ChunkTreePopulate()
         {
             if (ChunkTree.ImageList == null)
                 ChunkTree.ImageList = ChunkIconList;
+            var chunker = Main.chunker;
             ChunkTree.BeginUpdate();
             ChunkTree.Nodes.Clear();
             TreeNode root = new TreeNode(chunker.fname);
@@ -73,31 +71,33 @@ namespace HugeFiles.Forms
         public void MoveSelectedImage(int start)
         {
             TreeNode root = ChunkTree.Nodes[0];
-            if (start == chunker.chunkSelected || start < 0 || start >= root.Nodes.Count)
+            if (start == Main.chunker.chunkSelected || start < 0 || start >= root.Nodes.Count)
                 return;
             // first two images are for non-viewed, last two are for viewed
             TreeNode startnode = root.Nodes[start];
-            TreeNode endnode = root.Nodes[chunker.chunkSelected];
+            TreeNode endnode = root.Nodes[Main.chunker.chunkSelected];
             startnode.ImageIndex -= 2;
             startnode.SelectedImageIndex -= 2;
             endnode.ImageIndex += 2;
             endnode.SelectedImageIndex += 2;
         }
 
-        public static void OpenChunk(Chunker chunker, int chunkSelected)
+        public static void OpenChunk(BaseChunker chunker, int chunkSelected)
         {
-            if (chunker.buffName == "")
+            if (chunker.buffName == "") // no file yet, so make one and open it
             {
                 Npp.notepad.FileNew();
                 chunker.buffName = Npp.GetCurrentPath();
             }
+            // now check current file again to see if the form's file is open
             if (chunker.buffName != Npp.GetCurrentPath())
                 return;
             Npp.editor.SetText(chunker.ReadChunk(chunkSelected));
         }
 
-        public static void FirstChunk(Chunker chunker, ChunkForm chunkForm)
+        public static void FirstChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
+            if (chunker.chunks.Count == 0) return;
             int prev_selected = chunker.chunkSelected;
             ChunkForm.OpenChunk(chunker, 0);
             if (chunkForm != null)
@@ -110,7 +110,7 @@ namespace HugeFiles.Forms
                 
         }
 
-        public static void PreviousChunk(Chunker chunker, ChunkForm chunkForm)
+        public static void PreviousChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
             if (chunker.chunks.Count == 0)
                 return;
@@ -122,8 +122,9 @@ namespace HugeFiles.Forms
                 chunkForm.MoveSelectedImage(prev_selected);
         }
 
-        public static void NextChunk(Chunker chunker, ChunkForm chunkForm)
+        public static void NextChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
+            if (chunker.chunks.Count == 0) return;
             int prev_selected = chunker.chunkSelected;
             if (!(chunker.finished && chunker.chunkSelected == chunker.chunks.Count - 1))
                 chunker.chunkSelected++;
@@ -137,11 +138,12 @@ namespace HugeFiles.Forms
             }
         }
 
-        public static void LastChunk(Chunker chunker, ChunkForm chunkForm)
+        public static void LastChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
             int prev_selected = chunker.chunkSelected;
             int prev_chunk_count = chunker.chunks.Count;
             chunker.AddAllChunks();
+            if (chunker.chunks.Count == 0) return;
             ChunkForm.OpenChunk(chunker, chunker.chunks.Count - 1);
             if (chunkForm != null)
             {
@@ -154,49 +156,34 @@ namespace HugeFiles.Forms
 
         private void ChunkTree_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            int prev_selected = chunker.chunkSelected;
-            ChunkForm.OpenChunk(chunker, e.Node.Index);
+            int prev_selected = Main.chunker.chunkSelected;
+            ChunkForm.OpenChunk(Main.chunker, e.Node.Index);
             MoveSelectedImage(prev_selected);
         }
 
         private void FirstButton_Click(object sender, EventArgs e)
         {
-            ChunkForm.FirstChunk(chunker, this);
+            ChunkForm.FirstChunk(Main.chunker, this);
         }
 
         private void PreviousButton_Click(object sender, EventArgs e)
         {
-            ChunkForm.PreviousChunk(chunker, this);
+            ChunkForm.PreviousChunk(Main.chunker, this);
         }
 
         private void NextButton_Click(object sender, EventArgs e)
         {
-            ChunkForm.NextChunk(chunker, this);
+            ChunkForm.NextChunk(Main.chunker, this);
         }
 
         private void LastButton_Click(object sender, EventArgs e)
         {
-            ChunkForm.LastChunk(chunker, this);
+            ChunkForm.LastChunk(Main.chunker, this);
         }
 
         private void ChooseFileButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "All files|*.*|Text files|*.txt";
-            ofd.InitialDirectory = @"C:\";
-            ofd.Title = "Open file for chunking with HugeFiles";
-            ofd.CheckFileExists = true;
-            string fname;
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                fname = ofd.FileName;
-                if (!File.Exists(fname))
-                {
-                    return;
-                }
-                chunker.ChooseNewFile(fname);
-                ChunkTreePopulate();
-            }
+            Main.ChooseFile();
         }
     }
 }

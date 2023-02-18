@@ -13,25 +13,24 @@ namespace NppPluginNET.Forms
 {
     public partial class FindReplaceForm : Form
     {
-        public Chunker chunker;
         private Dictionary<long, int> startsToChunkIndices;
 
-        public FindReplaceForm(Chunker chunker)
+        public FindReplaceForm()
         {
             InitializeComponent();
-            this.chunker = chunker;
-            this.Text = $"Find text in {chunker.fname}";
+            this.Text = $"Find text in {Main.chunker.fname}";
             startsToChunkIndices = new Dictionary<long, int>();
         }
 
         private Dictionary<int, string> SearchInOneChunk(long chunkStart, long chunkEnd)
         {
-            chunker.fhand.Seek(chunkStart, SeekOrigin.Begin);
+            FileStream fhand = Main.chunker.fhand;
+            fhand.Seek(chunkStart, SeekOrigin.Begin);
             StringBuilder sb = new StringBuilder((int)(chunkEnd - chunkStart));
             var results = new Dictionary<int, string>();
-            while (chunker.fhand.Position < chunkEnd)
+            while (fhand.Position < chunkEnd)
             {
-                sb.Append((char)chunker.fhand.ReadByte());
+                sb.Append((char)Main.chunker.fhand.ReadByte());
             }
             string text = sb.ToString();
             int matchCount = 0;
@@ -56,6 +55,7 @@ namespace NppPluginNET.Forms
 
         private void SearchButton_Click(object sender, EventArgs e)
         {
+            BaseChunker chunker = Main.chunker;
             var results = new Dictionary<long, Dictionary<int, string>>();
             chunker.AddAllChunks();
             if (Main.chunkForm != null)
@@ -97,9 +97,9 @@ namespace NppPluginNET.Forms
             int chunkIdx = startsToChunkIndices[chunkStart];
             if (Main.chunkForm != null)
             {
-                if (chunker.buffName != "")
-                    Npp.notepad.OpenFile(chunker.buffName);
-                ChunkForm.OpenChunk(chunker, chunkIdx);
+                if (Main.chunker.buffName != "")
+                    Npp.notepad.OpenFile(Main.chunker.buffName);
+                ChunkForm.OpenChunk(Main.chunker, chunkIdx);
             }
         }
     }

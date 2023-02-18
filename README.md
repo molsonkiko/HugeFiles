@@ -12,9 +12,10 @@ Any issues, feel free to email me at mjolsonsfca@gmail.com.
 ## Features ##
 1. You can choose to break the chunk up by delimiters ("\r\n" by default, but you can choose any delimiter)
   or just have every chunk be the same size.
-  - By default, the plugin will infer the line terminator of a file, so you don't need to do anything.
+    - By default, the plugin will infer the line terminator of a file, so you don't need to do anything.
 2. A nice form for moving between chunks.
 3. A [form for searching for text](/docs/README.md#text-search-form) in the file.
+4. [JSON files](/docs/README.md#chunking-json-files) can be broken into chunks that are all syntactically valid JSON.
 
 [Read the docs.](/docs/README.md)
 

@@ -84,6 +84,8 @@
     <Compile Include="Forms\FindReplaceForm.Designer.cs">
       <DependentUpon>FindReplaceForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="HugeFiles\BaseChunker.cs" />
+    <Compile Include="HugeFiles\XML_Chunker.cs" />
     <Compile Include="PluginInfrastructure\DllExport\DllExportAttribute.cs">
       <Link>PluginInfrastructure\DllExport\DllExportAttribute.cs</Link>
     </Compile>
@@ -133,6 +135,7 @@
       <Link>PluginInfrastructure\UnmanagedExports.cs</Link>
     </Compile>
     <Compile Include="Main.cs" />
+    <Compile Include="PluginInfrastructure\SettingsBase.cs" />
     <Compile Include="PluginInfrastructure\NanInf.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -140,11 +143,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Tests\Benchmarker.cs" />
+    <Compile Include="Tests\ChunkerTests.cs" />
+    <Compile Include="Tests\JsonChunkerTests.cs" />
+    <Compile Include="Tests\TestRunner.cs" />
     <Compile Include="Utils\Misc.cs" />
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="HugeFiles\Chunker.cs" />
     <Compile Include="HugeFiles\Chunk.cs" />
     <Compile Include="HugeFiles\Diff.cs" />
+    <Compile Include="HugeFiles\JsonChunker.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- external dependencies -->
