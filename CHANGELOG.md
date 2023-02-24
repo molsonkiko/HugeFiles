@@ -18,9 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
             2. Otherwise, apply the diffs, then append the edited chunk to the file.
         3. Delete the original file.
         4. Rename the new file to have the same name as the old one.
-2. Make the search form into a find/replace form.
-3. Add a tool for creating a new directory and writing each chunk to a separate file.
-4. Chunk big XML documents so that each chunk is also valid XML.
+2. Chunk big XML documents so that each chunk is also valid XML.
 
 ### To Be Changed
 
@@ -29,6 +27,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### To Be Fixed
 
 1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
+
+## [0.4.0] - 2023-02-23
+
+### Added
+
+1. [Find and replace text](/docs/README.md#findreplace-form) or regexes in a file. The results of the find/replace can either overwrite the original file or be written to a new file.
+2. [Write each chunk to a separate file](/docs/README.md#write-chunks-to-folder) (optionally in a new folder created for this purpose).
+3. Plugin command to close connection to file and close all forms.
+4. Clicking on a specific result in the find/replace form now jumps to the location of the matched text rather than just opening up the correct chunk.
+5. Tab navigation of the find/replace form.
 
 ## [0.3.0] - 2023-02-18
 
@@ -46,7 +54,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-1. [Form](/docs/README.md#text-search-form) for searching for text in chunked file. Can navigate to chunks where search results were found.
+1. [Form](/docs/README.md#findreplace-form) for searching for text in chunked file. Can navigate to chunks where search results were found.
 2. Automatic inference of line terminator. Can be turned off in plugin settings.
 
 ## [0.1.1] - 2022-09-03

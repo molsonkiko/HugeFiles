@@ -17,7 +17,7 @@ namespace HugeFiles.Tests
 Testing default chunker for normal text files
 =========================
 ");
-            ChunkerTester.Test();
+            TextChunkerTester.Test();
 
             Npp.AddLine(@"=========================
 Testing JSON Chunker

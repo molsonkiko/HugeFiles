@@ -144,12 +144,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Tests\Benchmarker.cs" />
-    <Compile Include="Tests\ChunkerTests.cs" />
+    <Compile Include="Tests\TextChunkerTests.cs" />
     <Compile Include="Tests\JsonChunkerTests.cs" />
     <Compile Include="Tests\TestRunner.cs" />
     <Compile Include="Utils\Misc.cs" />
     <Compile Include="Utils\Settings.cs" />
-    <Compile Include="HugeFiles\Chunker.cs" />
+    <Compile Include="HugeFiles\TextChunker.cs" />
     <Compile Include="HugeFiles\Chunk.cs" />
     <Compile Include="HugeFiles\Diff.cs" />
     <Compile Include="HugeFiles\JsonChunker.cs" />

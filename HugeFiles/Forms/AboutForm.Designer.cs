@@ -46,12 +46,12 @@
             // Description
             // 
             this.Description.AutoSize = true;
-            this.Description.Location = new System.Drawing.Point(22, 65);
+            this.Description.Location = new System.Drawing.Point(21, 64);
             this.Description.Name = "Description";
-            this.Description.Size = new System.Drawing.Size(317, 48);
+            this.Description.Size = new System.Drawing.Size(322, 48);
             this.Description.TabIndex = 1;
-            this.Description.Text = "HugeFiles is a plugin for viewing very large files\r\nthat would crash Notepad++ or" +
-    " make it unresponsive\r\nif you opened them normally.";
+            this.Description.Text = "HugeFiles is a plugin for viewing and editing\r\nvery large files that would crash " +
+    "Notepad++\r\nor make it unresponsive if you opened them normally.";
             // 
             // DocsButton
             // 

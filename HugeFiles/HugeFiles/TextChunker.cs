@@ -39,7 +39,7 @@ using System.Windows.Forms;
 
 namespace HugeFiles.HugeFiles
 {
-    public class Chunker : BaseChunker
+    public class TextChunker : BaseChunker
     {
         public string delimiter;
         public int minChunk;
@@ -49,7 +49,7 @@ namespace HugeFiles.HugeFiles
         /// <summary>
         /// breaks a file into chunks
         /// </summary>
-        public Chunker(string fname,
+        public TextChunker(string fname,
                        string delimiter = "\r\n",
                        int minChunk = 180_000,
                        int maxChunk = 220_000) : base(fname)

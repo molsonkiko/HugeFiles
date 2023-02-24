@@ -537,6 +537,7 @@ namespace HugeFiles.HugeFiles
         /// <exception cref="JsonChunkerException"></exception>
         public override void AddAllChunks()
         {
+            if (finished) return;
             if (WarnTooManyChunks(chunkSize)) return;
             try
             {

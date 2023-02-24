@@ -14,5 +14,5 @@ Passed 38 tests.
 Performance tests for normal Chunker and JSON Chunker
 =========================
 
-Chunking of text file of length 104 KB with delimiter=\r\n, minChunk=18000, maxChunk=22000, auto-infer=True took 0.233 +/- 0.174 ms over 30 trials
-Chunking of JSON file of length 104 KB with minChunk=18000 and maxChunk=22000 took 7.667 +/- 0.315 ms over 30 trials
+Chunking of text file of length 104 KB with delimiter=\r\n, minChunk=18000, maxChunk=22000, auto-infer=True took 0.254 +/- 0.21 ms over 30 trials
+Chunking of JSON file of length 104 KB with minChunk=18000 and maxChunk=22000 took 7.611 +/- 0.207 ms over 30 trials

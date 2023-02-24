@@ -25,7 +25,7 @@ namespace HugeFiles.Tests
             text_fname = curdir + text_fname;
             json_fname = curdir + json_fname;
             long[] text_times = new long[num_text_trials];
-            Chunker textChunker = null;
+            TextChunker textChunker = null;
             bool oldAutoInfer = Main.settings.autoInferBestDelimiterAndTolerance;
             Main.settings.autoInferBestDelimiterAndTolerance = autoInfer;
             long textLength = 0;
@@ -34,11 +34,10 @@ namespace HugeFiles.Tests
             {
                 watch.Reset();
                 watch.Start();
-                if (textChunker != null)
-                    textChunker.Dispose();
+                textChunker?.Dispose();
                 try
                 {
-                    textChunker = new Chunker(text_fname, delim, minChunk, maxChunk);
+                    textChunker = new TextChunker(text_fname, delim, minChunk, maxChunk);
                     textChunker.AddAllChunks();
                 }
                 catch (Exception ex)
@@ -67,8 +66,7 @@ namespace HugeFiles.Tests
             {
                 watch.Reset();
                 watch.Start();
-                if (jsonChunker != null)
-                    jsonChunker.Dispose();
+                jsonChunker?.Dispose();
                 try
                 {
                     jsonChunker = new JsonChunker(json_fname, minChunk, maxChunk);

@@ -45,7 +45,7 @@ namespace HugeFiles.HugeFiles
 
         public void Dispose()
         {
-            fhand.Dispose();
+            fhand?.Dispose();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace HugeFiles.HugeFiles
         /// <exception cref="FileNotFoundException"></exception>
         public void ChooseNewFile(string fname)
         {
-            fhand.Dispose();
+            fhand?.Dispose();
             if (!File.Exists(fname))
             {
                 throw new FileNotFoundException(fname);

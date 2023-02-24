@@ -14,8 +14,9 @@ Any issues, feel free to email me at mjolsonsfca@gmail.com.
   or just have every chunk be the same size.
     - By default, the plugin will infer the line terminator of a file, so you don't need to do anything.
 2. A nice form for moving between chunks.
-3. A [form for searching for text](/docs/README.md#text-search-form) in the file.
+3. A [form for finding and replacing text](/docs/README.md#findreplace-form) in the file.
 4. [JSON files](/docs/README.md#chunking-json-files) can be broken into chunks that are all syntactically valid JSON.
+5. Each chunk of the file can be [written to a separate file](/docs/README.md#write-chunks-to-folder), optionally in a new folder.
 
 [Read the docs.](/docs/README.md)
 

@@ -118,8 +118,7 @@ namespace HugeFiles.Forms
             if (chunker.chunkSelected > 0)
                 chunker.chunkSelected -= 1;
             ChunkForm.OpenChunk(chunker, chunker.chunkSelected);
-            if (chunkForm != null)
-                chunkForm.MoveSelectedImage(prev_selected);
+            chunkForm?.MoveSelectedImage(prev_selected);
         }
 
         public static void NextChunk(BaseChunker chunker, ChunkForm chunkForm)

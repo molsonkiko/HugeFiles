@@ -92,7 +92,7 @@ Let's look at the file one last time, this time with previews.
 
 ![CSV file with CR delimiter and 30-character preview](/docs/csv%20file%20CR%20delim%2030%20preview%20settings.PNG)
 
-## Text search form ##
+## Find/replace form ##
 
 You can use a form to search for text in the huge file that you've chosen. This form will find matches for simple text or a regular expression.
 
@@ -103,6 +103,15 @@ The search form caps out at 100 search results per chunk. This is in place to av
 Clicking on a top-level node in the treeview (looks like `200053: 60 results`) causes Notepad++ to open up that chunk in a buffer.
 
 This search form works whether the file was chunked as JSON or as text.
+
+Starting in version `0.4`, the find/replace form can perform replacements. Each chunk is read in sequence and appended to a new file, which can either be retained as a separate file or used to overwrite the original file.
+
+![Find/replace form performing a replacement](/docs/find%20replace%20form%20replace%20to%20other%20file.PNG)
+
+## Write chunks to folder ##
+
+The plugin can write each chunk of a file to a folder as a separate document with the same extension as the old file. The folder can be new or existing. Command is at `Plugins->HugeFiles->Chunks to folder`.
+
 
 ## Running the tests ##
 

@@ -7,7 +7,7 @@ using Kbg.NppPluginNET;
 
 namespace HugeFiles.Tests
 {
-    public class ChunkerTester
+    public class TextChunkerTester
     {
         public static void Test()
         {
@@ -145,17 +145,14 @@ namespace HugeFiles.Tests
                 ),
             };
             string curdir = "plugins/HugeFiles/testfiles/";
-            Chunker chunker = null;
+            TextChunker chunker = null;
             bool oldAutoInfer = Main.settings.autoInferBestDelimiterAndTolerance;
             foreach ((int minChunk, int maxChunk, string fname,
                 string delim, bool autoInfer,
                 List<Chunk> correctChunks) in testcases)
             {
-                if (chunker != null)
-                {
-                    chunker.Dispose();
-                }
-                chunker = new Chunker(curdir + fname, delim, minChunk, maxChunk);
+                chunker?.Dispose();
+                chunker = new TextChunker(curdir + fname, delim, minChunk, maxChunk);
                 Main.settings.autoInferBestDelimiterAndTolerance = autoInfer;
                 chunker.AddAllChunks();
                 ii++;

@@ -16,6 +16,7 @@ using HugeFiles.HugeFiles;
 using HugeFiles.Utils;
 using NppPluginNET.Forms;
 using HugeFiles.Tests;
+using System.Linq;
 
 namespace Kbg.NppPluginNET
 {
@@ -76,24 +77,26 @@ namespace Kbg.NppPluginNET
                 new ShortcutKey(false, true, true, Keys.F));
             PluginBase.SetCommand(1, "&Settings", OpenSettings,
                 new ShortcutKey(false, true, true, Keys.T));
-            PluginBase.SetCommand(2, "---", null);
-            PluginBase.SetCommand(3, "&First chunk", FirstChunk, 
+            PluginBase.SetCommand(2, "E&xit file", ExitFile);
+            PluginBase.SetCommand(3, "---", null);
+            PluginBase.SetCommand(4, "&First chunk", FirstChunk, 
                 new ShortcutKey(false, true, false, Keys.Up));
-            PluginBase.SetCommand(4, "&Previous chunk", PreviousChunk,
+            PluginBase.SetCommand(5, "&Previous chunk", PreviousChunk,
                 new ShortcutKey(false, true, false, Keys.Left));
-            PluginBase.SetCommand(5, "&Next chunk", NextChunk,
+            PluginBase.SetCommand(6, "&Next chunk", NextChunk,
                 new ShortcutKey(false, true, false, Keys.Right));
-            PluginBase.SetCommand(6, "&Last chunk", LastChunk,
+            PluginBase.SetCommand(7, "&Last chunk", LastChunk,
                 new ShortcutKey(false, true, false, Keys.Down));
-            PluginBase.SetCommand(7, "---", null);
-            PluginBase.SetCommand(8, "&Open chunk form", OpenChunkForm,
+            PluginBase.SetCommand(8, "---", null);
+            PluginBase.SetCommand(9, "&Open chunk form", OpenChunkForm,
                 new ShortcutKey(false, true, true, Keys.H));
-            idChunkForm = 8;
-            PluginBase.SetCommand(9, "Searc&h for text in file", OpenFindReplaceForm);
-            idFindReplaceForm = 9;
-            PluginBase.SetCommand(10, "---", null);
-            PluginBase.SetCommand(11, "A&bout", OpenAboutForm);
-            PluginBase.SetCommand(12, "Run &tests", TestRunner.RunAll);
+            idChunkForm = 9;
+            PluginBase.SetCommand(10, "Searc&h for text in file", OpenFindReplaceForm);
+            idFindReplaceForm = 10;
+            PluginBase.SetCommand(11, "Chunks to folde&r", ChunksToFolder);
+            PluginBase.SetCommand(12, "---", null);
+            PluginBase.SetCommand(13, "A&bout", OpenAboutForm);
+            PluginBase.SetCommand(14, "Run &tests", TestRunner.RunAll);
 
             // fix most common validation problem with settings
             if (settings.minChunk > settings.maxChunk)
@@ -126,12 +129,9 @@ namespace Kbg.NppPluginNET
         static internal void PluginCleanUp()
         {
             //Win32.WritePrivateProfileString(sectionName, keyName, doCloseTag ? "1" : "0", iniFilePath);
-            if (chunker != null)
-                chunker.Dispose();
-            if (chunkForm != null)
-                chunkForm.Dispose();
-            if (findReplaceForm != null)
-                findReplaceForm.Dispose();
+            chunker?.Dispose();
+            chunkForm?.Dispose();
+            findReplaceForm?.Dispose();
         }
 
         public static void OnNotification(ScNotification notification)
@@ -154,6 +154,11 @@ namespace Kbg.NppPluginNET
                 {
                     chunker.buffName = "";
                 }
+            }
+            if (code == (uint)NppMsg.NPPN_BUFFERACTIVATED)
+            {
+                // make sure the editor tracks whatever view the user is actually currently working with
+                Npp.editor = new ScintillaGateway(PluginBase.GetCurrentScintilla());
             }
         }
 
@@ -186,8 +191,7 @@ namespace Kbg.NppPluginNET
                     chunker.Reset(settings.delimiter, settings.minChunk, settings.maxChunk);
                     chunker.buffName = "";
                 }
-                if (chunkForm != null)
-                    chunkForm.ChunkTreePopulate();
+                chunkForm?.ChunkTreePopulate();
             }
         }
 
@@ -210,20 +214,16 @@ namespace Kbg.NppPluginNET
                 }
                 if (chunker == null
                     || (chunker is JsonChunker && !isJson)
-                    || (chunker is Chunker && isJson))
+                    || (chunker is TextChunker && isJson))
                 {
-                    if (chunker != null)
-                        chunker.Dispose();
+                    chunker?.Dispose();
                     if (isJson)
                         chunker = new JsonChunker(fname, settings.minChunk, settings.maxChunk);
-                    else chunker = new Chunker(fname, settings.delimiter, settings.minChunk, settings.maxChunk);
+                    else chunker = new TextChunker(fname, settings.delimiter, settings.minChunk, settings.maxChunk);
                 }
                 else
                     chunker.ChooseNewFile(fname);
-                if (chunkForm != null)
-                {
-                    chunkForm.ChunkTreePopulate();
-                }
+                chunkForm?.ChunkTreePopulate();
                 if (findReplaceForm != null)
                 {
                     findReplaceForm.Hide();
@@ -232,6 +232,24 @@ namespace Kbg.NppPluginNET
                     findReplaceForm.Show();
                 }
             }
+        }
+
+        static void ExitFile()
+        {
+            if (chunkForm != null)
+            {
+                chunkForm.Hide();
+                Win32.SendMessage(PluginBase.nppData._nppHandle,
+                    (uint)(NppMsg.NPPM_DMMHIDE),
+                    0, chunkForm.Handle); // hide the docking form
+                chunkForm.Dispose();
+                chunkForm = null;
+            }
+            chunker?.Dispose();
+            chunker = null;
+            findReplaceForm?.Hide();
+            findReplaceForm?.Dispose();
+            findReplaceForm = null;
         }
 
         static void FirstChunk()
@@ -291,12 +309,46 @@ namespace Kbg.NppPluginNET
             new AboutForm().ShowDialog();
         }
 
+        static void ChunksToFolder()
+        {
+            if (WhineIfChunkerNull()) return;
+            chunker.AddAllChunks();
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = Path.GetDirectoryName(chunker.fname);
+            string extension = Path.GetExtension(chunker.fname);
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                for (int ii = 0; ii < chunker.chunks.Count; ii++)
+                {
+                    Chunk chunk = chunker.chunks[ii];
+                    FileStream stream = null;
+                    try
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes(chunker.ReadChunk(ii));
+                        stream = new FileStream($"{dlg.SelectedPath}/chunk_{chunk.start}{extension}", FileMode.CreateNew);
+                        stream.Write(bytes, 0, bytes.Length);
+
+                    }
+                    catch
+                    {
+                        MessageBox.Show($"Failed to create a file for chunk starting at position {chunk.start}. No more chunks will be written to file.",
+                            "Failed to write chunk to file",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    finally
+                    {
+                        stream?.Dispose();
+                    }
+                }
+                MessageBox.Show($"Succeeded in writing chunks to files in folder {dlg.SelectedPath}",
+                    "New folder created!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         static void OpenChunkForm()
         {
-            //    // Dockable Dialog Demo
-            //    // 
-            //    // This demonstration shows you how to do a dockable dialog.
-            //    // You can create your own non dockable dialog - in this case you don't nedd this demonstration.
             if (WhineIfChunkerNull()) return;
             
             if (chunkForm == null)
@@ -335,6 +387,7 @@ namespace Kbg.NppPluginNET
             }
             else
             {
+                // toggle existing form between visible and invisible
                 if (!chunkForm.Visible)
                 {
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_DMMSHOW, 0, chunkForm.Handle);
