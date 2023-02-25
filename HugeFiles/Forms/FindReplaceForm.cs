@@ -67,7 +67,18 @@ namespace NppPluginNET.Forms
             {
                 Chunk chunk = chunker.chunks[ii];
                 startsToChunkIndices[chunk.start] = ii;
-                var chunkResults = SearchInOneChunk(chunk);
+                Dictionary<int, string> chunkResults = null;
+                try
+                {
+                    chunkResults = SearchInOneChunk(chunk);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"While trying to find/replace in a chunk, got the following error:\r\n{ex}",
+                            "Error during find/replace in chunk",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 if (chunkResults.Count == 0)
                     continue;
                 node = SearchResultTree.Nodes.Add($"{chunk.start}: {chunkResults.Count} results");
@@ -160,12 +171,22 @@ namespace NppPluginNET.Forms
                 {
                     // do our find/replace in each chunk and append it to the file
                     Chunk chunk = Main.chunker.chunks[ii];
-                    byte[] replaced = Encoding.UTF8.GetBytes(ReplaceInOneChunk(chunk));
-                    newFhand.Write(replaced, 0, replaced.Length);
-                    if (isJsonChunker && ii < chunkCount - 1)
-                        newFhand.Write(Encoding.UTF8.GetBytes(","), 0, 1);
-                        // the chunks don't end in commas by default, so we need to add commas after each
-                        // intermediate chunk to ensure that the new file is valid json
+                    try
+                    {
+                        byte[] replaced = Encoding.UTF8.GetBytes(ReplaceInOneChunk(chunk));
+                        newFhand.Write(replaced, 0, replaced.Length);
+                        if (isJsonChunker && ii < chunkCount - 1)
+                            newFhand.Write(Encoding.UTF8.GetBytes(","), 0, 1);
+                            // the chunks don't end in commas by default, so we need to add commas after each
+                            // intermediate chunk to ensure that the new file is valid json
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"While trying to find/replace in a chunk, got the following error:\r\n{ex}",
+                            "Error during find/replace in chunk",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
                 if (OverwriteCheckBox.Checked)
                 {
@@ -199,11 +220,11 @@ namespace NppPluginNET.Forms
             finally
             {
                 // free up references to our new/temp file
+                newFhand?.Dispose();
                 if (OverwriteCheckBox.Checked)
                 {
                     File.Delete(targetFname);
                 }
-                newFhand.Dispose();
             }
             string fnameWrittenTo = OverwriteCheckBox.Checked ? originalName : targetFname;
             MessageBox.Show($"Succeeded in performing find/replace and writing results to {fnameWrittenTo}",

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         3. Delete the original file.
         4. Rename the new file to have the same name as the old one.
 2. Chunk big XML documents so that each chunk is also valid XML.
+3. __Allow user to select which chunks to edit when using find/replace form (maybe checkboxes in F/R treeview?)__
 
 ### To Be Changed
 
@@ -27,6 +28,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### To Be Fixed
 
 1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
+
+## [0.4.1] (UNRELEASED) - 2023-MM-DD
+
+### Fixed
+
+1. Entering an invalid regex (e.g., unbalanced parentheses) in the [find/replace form](/docs/README.md#findreplace-form) no longer causes plugin crash and instead simply causes a message box to pop up and an early return.
 
 ## [0.4.0] - 2023-02-23
 
