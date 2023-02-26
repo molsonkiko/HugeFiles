@@ -94,7 +94,9 @@ Let's look at the file one last time, this time with previews.
 
 ## Find/replace form ##
 
-You can use a form to search for text in the huge file that you've chosen. This form will find matches for simple text or a regular expression.
+You can use a form to search for text in the huge file that you've chosen. This form will find matches for simple text or a regular expression. This plugin uses [.NET regular expressions](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference), not the Boost regex engine used by Notepad++.
+
+__NOTE__: For all releases up to and including [0.4.0](/CHANGELOG.md#040---2023-02-24), a syntactically incorrect regular expression (e.g., unmatched parentheses, bad escape sequence) will cause the plugin, and possibly Notepad++ as a whole, to crash. [Consult this reference](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) to see what kinds of regular expressions can be used.
 
 The search form caps out at 100 search results per chunk. This is in place to avoid excessive memory consumption when searching very large files.
 

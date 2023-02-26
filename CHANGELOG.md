@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 1. Entering an invalid regex (e.g., unbalanced parentheses) in the [find/replace form](/docs/README.md#findreplace-form) no longer causes plugin crash and instead simply causes a message box to pop up and an early return.
 
-## [0.4.0] - 2023-02-23
+## [0.4.0] - 2023-02-24
 
 ### Added
 
