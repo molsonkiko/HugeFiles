@@ -80,6 +80,7 @@ namespace HugeFiles.Forms
             startnode.SelectedImageIndex -= 2;
             endnode.ImageIndex += 2;
             endnode.SelectedImageIndex += 2;
+            endnode.EnsureVisible(); // scroll it into view if it's not visible
         }
 
         public static void OpenChunk(BaseChunker chunker, int chunkSelected)
@@ -97,12 +98,21 @@ namespace HugeFiles.Forms
 
         public static void FirstChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
-            if (chunker.chunks.Count == 0) return;
             int prev_selected = chunker.chunkSelected;
+            int prev_chunk_count = chunker.chunks.Count;
+            if (prev_chunk_count == 0)
+            {
+                if (chunker is TextChunker tchunker)
+                    tchunker.AddChunk();
+                else
+                    chunker.AddAllChunks();
+            }
+            if (prev_selected == 0)
+                return;
             ChunkForm.OpenChunk(chunker, 0);
             if (chunkForm != null)
             {
-                if (chunker.chunks.Count > 1)
+                if (chunker.chunks.Count > 1 && prev_chunk_count != 0)
                     chunkForm.MoveSelectedImage(prev_selected);
                 else if (prev_selected == -1)
                     chunkForm.ChunkTreePopulate();
@@ -112,25 +122,34 @@ namespace HugeFiles.Forms
 
         public static void PreviousChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
-            if (chunker.chunks.Count == 0)
-                return;
             int prev_selected = chunker.chunkSelected;
-            if (chunker.chunkSelected > 0)
-                chunker.chunkSelected -= 1;
+            if (prev_selected <= 0)
+                return;
+            chunker.chunkSelected -= 1;
             ChunkForm.OpenChunk(chunker, chunker.chunkSelected);
             chunkForm?.MoveSelectedImage(prev_selected);
         }
 
         public static void NextChunk(BaseChunker chunker, ChunkForm chunkForm)
         {
-            if (chunker.chunks.Count == 0) return;
             int prev_selected = chunker.chunkSelected;
-            if (!(chunker.finished && chunker.chunkSelected == chunker.chunks.Count - 1))
-                chunker.chunkSelected++;
+            // if the user is on the last chunk, reveal another chunk
+            int prev_chunk_count = chunker.chunks.Count;
+            if (prev_selected == chunker.chunks.Count - 1)
+            {
+                if (chunker.finished)
+                    return;
+                if (chunker is TextChunker tchunker)
+                    tchunker.AddChunk();
+                else
+                    chunker.AddAllChunks();
+            }
+            chunker.chunkSelected += 1;
             ChunkForm.OpenChunk(chunker, chunker.chunkSelected);
+            int cur_chunk_count = chunker.chunks.Count;
             if (chunkForm != null)
             {
-                if (prev_selected >= chunker.chunks.Count - 2)
+                if (prev_selected >= cur_chunk_count - 2 || cur_chunk_count > prev_chunk_count)
                     chunkForm.ChunkTreePopulate();
                 else
                     chunkForm.MoveSelectedImage(prev_selected);

@@ -46,7 +46,7 @@ There are 7 settings you can change:
 6.  `parseJsonAsJson`
     - Default: True
     - If true, files with the `.json` extension are automatically parsed as JSON. [See below](#chunking-json-files) for more.
-    - Parsing *large* JSON files can be __quite slow__ (perhaps 100 milliseconds per megabyte) and will *temporarily* consume a lot of memory while the file is being parsed. Hopefully this upfront cost is justified because (a) the file doesn't stay in memory and (b) paging through the file is less likely to cause crazy lag.
+    - Parsing *large* JSON files can be __quite slow__ (perhaps 0.1-0.2 seconds per megabyte) and will *temporarily* consume a lot of memory while the file is being parsed. Hopefully this upfront cost is justified because (a) the file doesn't stay in memory and (b) paging through the file is less likely to cause crazy lag.
 7. `parseNonJsonAsJson`
     - Default: False
     - If true, *all files* will be parsed [as JSON](#chunking-json-files).
@@ -71,6 +71,8 @@ Here's an example of a JSON file parsed using the JSON chunking functionality.
 My [JsonTools](https://github.com/molsonkiko/JsonToolsNppPlugin) plugin is able to work with any chunk of this file and create a tree view.
 
 ![JSON chunk with JsonTools tree](/docs/JSON%20file%20chunked%20as%20JSON%20with%20treeview.PNG)
+
+*NOTE:* prior to version [0.4.1](/CHANGELOG.md#041---2023-03-08), chunking one JSON file and then switching to another JSON file without choosing a non-JSON file in between would result in the second file being chunked incorrectly.
 
 ## Example of the impact of settings ##
 
@@ -98,7 +100,7 @@ You can use a form to search for text in the huge file that you've chosen. This 
 
 __NOTE__: For all releases up to and including [0.4.0](/CHANGELOG.md#040---2023-02-24), a syntactically incorrect regular expression (e.g., unmatched parentheses, bad escape sequence) will cause the plugin, and possibly Notepad++ as a whole, to crash. [Consult this reference](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) to see what kinds of regular expressions can be used.
 
-The search form caps out at 100 search results per chunk. This is in place to avoid excessive memory consumption when searching very large files.
+The search form caps out at 100 search results per chunk. This is in place to avoid excessive memory consumption when searching very large files. Starting in version [0.4.1](/CHANGELOG.md#041---2023-03-08), the form will show how many results were found in total, but it will still only show at most 100 results per chunk.
 
 ![Example usage of search form](/docs/search%20form%20example.PNG)
 

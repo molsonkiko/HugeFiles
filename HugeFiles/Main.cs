@@ -203,6 +203,7 @@ namespace Kbg.NppPluginNET
             ofd.Title = "Open file for chunking with HugeFiles";
             ofd.CheckFileExists = true;
             string fname;
+            // open a new file
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 fname = ofd.FileName;
@@ -212,6 +213,10 @@ namespace Kbg.NppPluginNET
                 {
                     return;
                 }
+                // if the file is of a type that the current chunker isn't equipped to handle,
+                // create a new chunker of the appropriate type.
+                // also create a new chunker if the chunker was a JsonChunker, because those
+                // chunkers don't handle resetting well.
                 if (chunker == null
                     || (chunker is JsonChunker && !isJson)
                     || (chunker is TextChunker && isJson))
@@ -222,6 +227,8 @@ namespace Kbg.NppPluginNET
                     else chunker = new TextChunker(fname, settings.delimiter, settings.minChunk, settings.maxChunk);
                 }
                 else
+                    // if the new file is a text file and the current chunker is a text chunker,
+                    // just switch the chunker to the new file
                     chunker.ChooseNewFile(fname);
                 chunkForm?.ChunkTreePopulate();
                 if (findReplaceForm != null)

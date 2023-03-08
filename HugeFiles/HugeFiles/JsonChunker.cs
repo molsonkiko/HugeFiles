@@ -472,6 +472,8 @@ namespace HugeFiles.HugeFiles
             if (finished) return;
             isObject = false;
             isArray = false;
+            chunkJustEnded = false;
+            lastBoundary = 0;
             unicodeExtraBytes = 0;
             fhand.Seek(0, SeekOrigin.Begin);
             string inp = new StreamReader(fhand).ReadToEnd();

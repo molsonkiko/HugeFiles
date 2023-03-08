@@ -34,22 +34,20 @@ namespace NppPluginNET.Forms
             return new Regex(pattern, RegexOptions.Compiled);
         }
 
-        private Dictionary<int, string> SearchInOneChunk(Chunk chunk)
+        private (int matchCount, Dictionary<int, string> results) SearchInOneChunk(Chunk chunk)
         {
             string text = chunk.Read(Main.chunker.fhand);
             Dictionary<int, string> results = new Dictionary<int, string>();
-            int matchCount = 0;
             Regex regex = PatternBoxToRegex();
-            foreach (Match match in regex.Matches(text))
+            int matchCount = 0;
+            MatchCollection matches = regex.Matches(text);
+            foreach (Match match in matches)
             {
                 if (matchCount++ >= 100)
-                {
-                    NotAllResultsShownFlag.Visible = true;
                     break;
-                }
                 results[match.Index] = match.Value;
             }
-            return results;
+            return (matches.Count, results);
         }
 
         private void SearchButton_Click(object sender, EventArgs e)
@@ -58,19 +56,21 @@ namespace NppPluginNET.Forms
             chunker.AddAllChunks();
             if (Main.chunkForm != null)
                 Main.chunkForm.ChunkTreePopulate();
-            NotAllResultsShownFlag.Visible = false;
             SearchResultTree.BeginUpdate();
             UseWaitCursor = true;
             SearchResultTree.Nodes.Clear();
             TreeNode node;
+            int totalMatchCount = 0;
+            int shownMatchCount = 0;
             for (int ii = 0; ii < chunker.chunks.Count; ii++)
             {
                 Chunk chunk = chunker.chunks[ii];
                 startsToChunkIndices[chunk.start] = ii;
-                Dictionary<int, string> chunkResults = null;
+                int chunkMatchCount;
+                Dictionary<int, string> chunkResults;
                 try
                 {
-                    chunkResults = SearchInOneChunk(chunk);
+                    (chunkMatchCount, chunkResults) = SearchInOneChunk(chunk);
                 }
                 catch (Exception ex)
                 {
@@ -81,13 +81,21 @@ namespace NppPluginNET.Forms
                 }
                 if (chunkResults.Count == 0)
                     continue;
-                node = SearchResultTree.Nodes.Add($"{chunk.start}: {chunkResults.Count} results");
+                if (chunkResults.Count == chunkMatchCount)
+                    node = SearchResultTree.Nodes.Add($"{chunk.start}: {chunkResults.Count} results");
+                else
+                    node = SearchResultTree.Nodes.Add($"{chunk.start}: showing {chunkResults.Count} of {chunkMatchCount} results");
+                totalMatchCount += chunkMatchCount;
+                shownMatchCount += chunkResults.Count;
                 foreach (int resultIndex in chunkResults.Keys)
                 {
                     string result = chunkResults[resultIndex];
                     node.Nodes.Add($"{resultIndex}: {result}");
                 }
             }
+            ResultCountLabel.Text = shownMatchCount < totalMatchCount
+                ? $"Showing {shownMatchCount} of {totalMatchCount} results"
+                : $"Found {totalMatchCount} results";
             SearchResultTree.EndUpdate();
             UseWaitCursor = false;
         }
@@ -109,7 +117,8 @@ namespace NppPluginNET.Forms
             long chunkStart = long.Parse(parts[0]);
             int chunkIdx = startsToChunkIndices[chunkStart];
             // if necessary, open the file
-            if (Main.chunker.buffName != "")
+            string curbuff = Npp.notepad.GetCurrentFilePath();
+            if (Main.chunker.buffName != "" && Main.chunker.buffName != curbuff)
                 Npp.notepad.OpenFile(Main.chunker.buffName);
             if (Main.chunker.chunkSelected != chunkIdx)
             {

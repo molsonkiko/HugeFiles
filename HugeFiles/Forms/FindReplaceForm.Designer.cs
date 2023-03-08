@@ -30,7 +30,7 @@
         {
             this.SearchResultTree = new System.Windows.Forms.TreeView();
             this.Title = new System.Windows.Forms.Label();
-            this.NotAllResultsShownFlag = new System.Windows.Forms.Label();
+            this.ResultCountLabel = new System.Windows.Forms.Label();
             this.PatternBox = new System.Windows.Forms.TextBox();
             this.PatternBoxLabel = new System.Windows.Forms.Label();
             this.RegexCheckBox = new System.Windows.Forms.CheckBox();
@@ -64,16 +64,15 @@
             this.Title.TabIndex = 1;
             this.Title.Text = "Find/replace text in Huge File";
             // 
-            // NotAllResultsShownFlag
+            // ResultCountLabel
             // 
-            this.NotAllResultsShownFlag.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.NotAllResultsShownFlag.AutoSize = true;
-            this.NotAllResultsShownFlag.Location = new System.Drawing.Point(206, 46);
-            this.NotAllResultsShownFlag.Name = "NotAllResultsShownFlag";
-            this.NotAllResultsShownFlag.Size = new System.Drawing.Size(177, 16);
-            this.NotAllResultsShownFlag.TabIndex = 13;
-            this.NotAllResultsShownFlag.Text = "Only some results are shown";
-            this.NotAllResultsShownFlag.Visible = false;
+            this.ResultCountLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ResultCountLabel.AutoSize = true;
+            this.ResultCountLabel.Location = new System.Drawing.Point(206, 46);
+            this.ResultCountLabel.Name = "ResultCountLabel";
+            this.ResultCountLabel.Size = new System.Drawing.Size(145, 16);
+            this.ResultCountLabel.TabIndex = 13;
+            this.ResultCountLabel.Text = "result count shown here";
             // 
             // PatternBox
             // 
@@ -210,7 +209,7 @@
             this.Controls.Add(this.RegexCheckBox);
             this.Controls.Add(this.PatternBoxLabel);
             this.Controls.Add(this.PatternBox);
-            this.Controls.Add(this.NotAllResultsShownFlag);
+            this.Controls.Add(this.ResultCountLabel);
             this.Controls.Add(this.Title);
             this.Controls.Add(this.SearchResultTree);
             this.Name = "FindReplaceForm";
@@ -225,7 +224,7 @@
 
         private System.Windows.Forms.TreeView SearchResultTree;
         private System.Windows.Forms.Label Title;
-        private System.Windows.Forms.Label NotAllResultsShownFlag;
+        private System.Windows.Forms.Label ResultCountLabel;
         private System.Windows.Forms.Label PatternBoxLabel;
         private System.Windows.Forms.CheckBox RegexCheckBox;
         private System.Windows.Forms.CheckBox IgnoreCaseCheckBox;

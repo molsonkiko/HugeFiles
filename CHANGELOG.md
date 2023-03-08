@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ### To Be Added
 
-1. Add the ability to edit the underlying file.
+1. Add the ability to edit the underlying file *by editing a chunk in the editor* (not just using the find/replace form)
     * this will require tracking Scintilla notifications and adding Diffs to the cuurrently selected Chunk whenever the chunk buffer is changed.
     * To make this really useful, we also want a different kind of Diff that tracks find/replace actions (those have a separate Scintilla notification).
     * To make the new file:
@@ -29,11 +29,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
 
-## [0.4.1] (UNRELEASED) - 2023-MM-DD
+## [0.4.1] - 2023-03-08
 
 ### Fixed
 
 1. Entering an invalid regex (e.g., unbalanced parentheses) in the [find/replace form](/docs/README.md#findreplace-form) no longer causes plugin crash and instead simply causes a message box to pop up and an early return.
+2. `Next chunk` and `First chunk` plugin commands (and associated buttons on chunk form) now add a new chunk if you were already on the last chunk (for `Next chunk`) or no chunks had been added.
+3. Reduced flickering when moving between find results in the find/replace form.
+4. Fixed bug where chunking a JSON file and then chunking another JSON file would cause the second file to be chunked incorrectly.
+
+#### Added
+
+1. `First chunk`, `Last chunk`, and `Next chunk` plugin commands all scroll the selected tree node into view on the chunk form.
+2. Show total match count on find/replace form, and indicate if fewer matches are shown than the total number found. Do the same for each chunk.
 
 ## [0.4.0] - 2023-02-24
 
