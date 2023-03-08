@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         4. Rename the new file to have the same name as the old one.
 2. Chunk big XML documents so that each chunk is also valid XML.
 3. __Allow user to select which chunks to edit when using find/replace form (maybe checkboxes in F/R treeview?)__
+4. Make it so the find/replace form's tree view can be used even if `Main.chunkForm` does not exist.
 
 ### To Be Changed
 
@@ -28,12 +29,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### To Be Fixed
 
 1. The "eyeball" icon indicating the currently selected file doesn't properly track when a chunk is selected with the find/replace form.
+2. Entering an invalid regex causes the find/replace form's tree view to be permanently deleted.
 
 ## [0.4.1] - 2023-03-08
 
 ### Fixed
 
-1. Entering an invalid regex (e.g., unbalanced parentheses) in the [find/replace form](/docs/README.md#findreplace-form) no longer causes plugin crash and instead simply causes a message box to pop up and an early return.
+1. Entering an invalid regex (e.g., unbalanced parentheses) in the [find/replace form](/docs/README.md#findreplace-form) no longer causes plugin crash and instead simply causes a message box to pop up and an early return. However, the find/replace form's tree view is lost as a result, and so the find/replace form will need to be closed and reopened afterwards.
 2. `Next chunk` and `First chunk` plugin commands (and associated buttons on chunk form) now add a new chunk if you were already on the last chunk (for `Next chunk`) or no chunks had been added.
 3. Reduced flickering when moving between find results in the find/replace form.
 4. Fixed bug where chunking a JSON file and then chunking another JSON file would cause the second file to be chunked incorrectly.
