@@ -98,6 +98,8 @@ Let's look at the file one last time, this time with previews.
 
 You can use a form to search for text in the huge file that you've chosen. This form will find matches for simple text or a regular expression. This plugin uses [.NET regular expressions](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference), not the Boost regex engine used by Notepad++.
 
+__WARNING:__ Because each find/replace operation is done chunk-by-chunk, this form *will not find or replace any matches that cross chunk boundaries.* Because of this limitation, __you should not use this form to search for regular expressions that can match multiple lines,__ and before doing any replacements, you should make sure that no chunk boundaries occur in unexpected locations.
+
 __NOTE__: For all releases up to and including [0.4.0](/CHANGELOG.md#040---2023-02-24), a syntactically incorrect regular expression (e.g., unmatched parentheses, bad escape sequence) will cause the plugin, and possibly Notepad++ as a whole, to crash. [Consult this reference](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) to see what kinds of regular expressions can be used.
 
 The search form caps out at 100 search results per chunk. This is in place to avoid excessive memory consumption when searching very large files. Starting in version [0.4.1](/CHANGELOG.md#041---2023-03-08), the form will show how many results were found in total, but it will still only show at most 100 results per chunk.
