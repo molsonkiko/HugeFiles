@@ -27,14 +27,14 @@ jobs:
 
     - name: Archive artifacts for x64
       if: matrix.build_platform == 'x64' && matrix.build_configuration == 'Release'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: plugin_dll_x64
           path: HugeFiles\bin\${{ matrix.build_configuration }}-x64\HugeFiles.dll
 
     - name: Archive artifacts for x86
       if: matrix.build_platform == 'x86' && matrix.build_configuration == 'Release'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: plugin_dll_x86
           path: HugeFiles\bin\${{ matrix.build_configuration }}\HugeFiles.dll
