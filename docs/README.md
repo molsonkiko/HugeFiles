@@ -118,6 +118,13 @@ Starting in version `0.4`, the find/replace form can perform replacements. Each 
 
 The plugin can write each chunk of a file to a folder as a separate document with the same extension as the old file. The folder can be new or existing. Command is at `Plugins->HugeFiles->Chunks to folder`.
 
+## Issues with NUL characters ##
+
+All versions of HugeFiles have issues with `NUL` characters (ASCII code `\x00`) because text is passed between Notepad++ and plugins using `NUL`-terminated C-strings. Specifically, __whenever a chunk of a file contains a `NUL` character is *displayed in Notepad++*, only the characters before the first `NUL` character will be shown.__ The plugin still holds the entire chunk in memory, including all `NUL` characters, but it has no way to tell Notepad++ to show text that includes `NUL` characters.
+
+Since this is a feature (not a bug) of Notepad++, it is unlikely that the above described problem will ever be fixed.
+
+Because this is only an issue of communication between HugeFiles and Notepad++, the find/replace form and "Write chunks to folder" feature will still work normally on files that contain `NUL` characters, and the files/folders created will not suffer from loss of `NUL` characters.
 
 ## Running the tests ##
 
